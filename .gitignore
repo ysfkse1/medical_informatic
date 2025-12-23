@@ -10,9 +10,10 @@ env/
 ENV/
 
 # Database
-*.db
-*.sqlite
-*.sqlite3
+# *.db
+# *.sqlite
+# *.sqlite3
+# Test için geçici olarak yorum satırına alındı - paylaşılan test verileri için
 
 # Environment variables (GİZLİ - API KEY BURADA!)
 .env
