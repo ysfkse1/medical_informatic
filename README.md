@@ -101,3 +101,5 @@ Bu çalışma, modern sağlık sistemlerinde ihtiyaç duyulan akıllı, güvenli
 Yusuf Köse  
 Galatasaray Üniversitesi  
 Medical Informatics
+
+wd
