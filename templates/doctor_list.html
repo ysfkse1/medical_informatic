@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Doktor Listesi{% endblock %}
+
+{% block content %}
+<h2>Doktor Paneli</h2>
+<p>Bir doktor seçip randevularını görüntüleyin. Giriş yapan doktor sadece kendi randevularını görebilir.</p>
+<div class="card-grid">
+    {% for doctor in doctors %}
+        <div class="card">
+            <h3>{{ doctor.full_name }}</h3>
+            <p>{{ doctor.specialty }}</p>
+            <a class="btn small" href="{% url 'doctor_detail' doctor.id %}">Randevuları Gör</a>
+        </div>
+    {% empty %}
+        <p>Doktor bulunamadı.</p>
+    {% endfor %}
+</div>
+{% endblock %}

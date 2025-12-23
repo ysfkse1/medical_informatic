@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Hasta Profili{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h2>👤 Hasta Profili</h2>
+        <p style="margin: 5px 0; color: #94a3b8;">Kişisel sağlık bilgilerinizi güncelleyin</p>
+    </div>
+    <a href="{% url 'patient_dashboard' %}" class="btn small">← Panele Dön</a>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div style="background: #7c3aed; color: white; padding: 15px; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;">
+        <h3 style="margin: 0;">📋 Temel Bilgiler</h3>
+        <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.9;">
+            Bu bilgiler randevu alırken otomatik olarak doldurulacaktır.
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Ad Soyad
+                    {{ form.full_name }}
+                </label>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Yaş
+                    {{ form.age }}
+                </label>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Cinsiyet
+                    {{ form.gender }}
+                </label>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Kilo (kg)
+                    {{ form.weight_kg }}
+                </label>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Boy (cm)
+                    {{ form.height_cm }}
+                </label>
+            </div>
+        </div>
+
+        <div style="background: #1a2332; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 10px 0; color: #7c3aed;">🩺 Sağlık Bilgileri</h4>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Ana Şikayet / Kronik Hastalıklar
+                    {{ form.primary_complaint }}
+                </label>
+                <small style="color: #94a3b8;">Varsa kronik hastalıklarınızı ve sürekli kullandığınız ilaçları belirtin.</small>
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                    Alerjiler
+                    {{ form.allergies }}
+                </label>
+                <small style="color: #94a3b8;">İlaç, besin veya diğer alerjilerinizi belirtin.</small>
+            </div>
+        </div>
+
+        {% if form.errors %}
+        <div style="background: #dc2626; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>⚠️ Lütfen aşağıdaki hataları düzeltin:</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn">💾 Profili Güncelle</button>
+            <a href="{% url 'patient_dashboard' %}" class="btn" style="background: #64748b;">İptal</a>
+        </div>
+    </form>
+</div>
+
+{% if patient %}
+<div class="card" style="max-width: 800px; margin: 20px auto; background: #1a2332;">
+    <h3 style="color: #10b981;">✅ Kayıtlı Bilgileriniz</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
+        <div><strong>Ad Soyad:</strong> {{ patient.full_name }}</div>
+        <div><strong>Yaş:</strong> {{ patient.age }}</div>
+        <div><strong>Cinsiyet:</strong> {{ patient.get_gender_display }}</div>
+        <div><strong>Kilo:</strong> {{ patient.weight_kg }} kg</div>
+        <div><strong>Boy:</strong> {{ patient.height_cm }} cm</div>
+        <div><strong>BMI:</strong> 
+            {% widthratio patient.weight_kg 1 10000 as weight_g %}
+            {% widthratio weight_g patient.height_cm 1 as bmi_temp %}
+            {% widthratio bmi_temp patient.height_cm 1 as bmi %}
+            {{ bmi|default:"--" }}
+        </div>
+    </div>
+    
+    {% if patient.allergies %}
+    <div style="margin-top: 15px; padding: 10px; background: #dc2626; border-radius: 6px;">
+        <strong>⚠️ Alerjiler:</strong> {{ patient.allergies }}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Triyaj ve Randevu{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h2>🩺 Triyaj ve Randevu Oluşturma</h2>
+        <p style="margin: 5px 0; color: #94a3b8;">Triyaj bilgileri AI tarafından analiz edilerek doktora iletilir</p>
+    </div>
+    <a href="{% url 'patient_dashboard' %}" class="btn small">← Panele Dön</a>
+</div>
+
+{% if patient %}
+<div class="card" style="background: #1a2332; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="margin: 0; color: #10b981;">✅ Profil Bilgileriniz</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 10px; font-size: 0.95em;">
+                <div><strong>Ad Soyad:</strong> {{ patient.full_name }}</div>
+                <div><strong>Yaş:</strong> {{ patient.age }}</div>
+                <div><strong>Kilo:</strong> {{ patient.weight_kg }} kg</div>
+                <div><strong>Boy:</strong> {{ patient.height_cm }} cm</div>
+            </div>
+        </div>
+        <a href="{% url 'patient_profile' %}" class="btn small">✏️ Düzenle</a>
+    </div>
+</div>
+{% else %}
+<div class="card" style="background: #dc2626; margin-bottom: 20px;">
+    <p style="margin: 0;"><strong>⚠️ Önce profil bilgilerinizi tamamlayın!</strong></p>
+    <a href="{% url 'patient_profile' %}" class="btn small" style="margin-top: 10px; display: inline-block;">Profili Tamamla</a>
+</div>
+{% endif %}
+
+<form method="post" class="card">
+    {% csrf_token %}
+    
+    <div style="background: #7c3aed; color: white; padding: 15px; border-radius: 8px; margin: -20px -20px 20px -20px;">
+        <h3 style="margin: 0;">📋 Triyaj Bilgileri</h3>
+        <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.9;">
+            Lütfen mevcut durumunuzu en doğru şekilde belirtin
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                {{ patient_form.pain_level.label }}
+                {{ patient_form.pain_level }}
+            </label>
+            <small style="color: #94a3b8;">{{ patient_form.pain_level.help_text }}</small>
+            {% for error in patient_form.pain_level.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </div>
+        
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                {{ patient_form.temperature.label }}
+                {{ patient_form.temperature }}
+            </label>
+            <small style="color: #94a3b8;">{{ patient_form.temperature.help_text }}</small>
+            {% for error in patient_form.temperature.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </div>
+        
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                {{ patient_form.heart_rate.label }}
+                {{ patient_form.heart_rate }}
+            </label>
+            <small style="color: #94a3b8;">{{ patient_form.heart_rate.help_text }}</small>
+            {% for error in patient_form.heart_rate.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                {{ patient_form.complaint_duration.label }}
+                {{ patient_form.complaint_duration }}
+            </label>
+            {% for error in patient_form.complaint_duration.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </div>
+        
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                {{ patient_form.has_breathing_difficulty.label }}
+                {{ patient_form.has_breathing_difficulty }}
+            </label>
+            {% for error in patient_form.has_breathing_difficulty.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </div>
+        
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                {{ patient_form.previous_similar_condition.label }}
+                {{ patient_form.previous_similar_condition }}
+            </label>
+            {% for error in patient_form.previous_similar_condition.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </div>
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+            {{ patient_form.symptoms_detail.label }}
+            {{ patient_form.symptoms_detail }}
+        </label>
+        <small style="color: #94a3b8;">{{ patient_form.symptoms_detail.help_text }}</small>
+        {% for error in patient_form.symptoms_detail.errors %}<span class="error">{{ error }}</span>{% endfor %}
+    </div>
+
+    <div style="background: #1a2332; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 15px 0; color: #10b981;">📅 Randevu Bilgileri</h4>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 1.05em;">
+                <span style="color: #10b981;">1️⃣</span> Doktor
+            </label>
+            <select name="doctor" id="doctor-select" required style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 1em;">
+                <option value="">Doktor seçiniz</option>
+                {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}">Dr. {{ doctor.full_name }} - {{ doctor.specialty }}</option>
+                {% endfor %}
+            </select>
+            <small style="display: block; margin-top: 5px; color: #94a3b8;">Önce doktor seçiniz, müsait saatler yüklenecek</small>
+        </div>
+        
+        <div id="slot-container" style="border-top: 1px solid #334155; padding-top: 15px; display: none;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 1.05em;">
+                <span style="color: #10b981;">2️⃣</span> Müsait Randevu Saatleri
+            </label>
+            <select name="appointment_slot" id="slot-select" required style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 1em;">
+                <option value="">Yükleniyor...</option>
+            </select>
+            <small id="slot-help" style="display: block; margin-top: 5px; color: #94a3b8;">Bir saat seçiniz</small>
+        </div>
+        
+        <div id="no-doctor-message" style="border-top: 1px solid #334155; padding-top: 15px; text-align: center; color: #64748b; padding: 20px;">
+            <p style="margin: 0;">⬆️ Önce yukarıdan bir doktor seçiniz</p>
+        </div>
+    </div>
+
+    <script>
+    // AJAX ile slot'ları yükle
+    const doctorSelect = document.getElementById('doctor-select');
+    const slotContainer = document.getElementById('slot-container');
+    const slotSelect = document.getElementById('slot-select');
+    const noDocMessage = document.getElementById('no-doctor-message');
+    
+    doctorSelect.addEventListener('change', function() {
+        const doctorId = this.value;
+        
+        if (!doctorId) {
+            slotContainer.style.display = 'none';
+            noDocMessage.style.display = 'block';
+            return;
+        }
+        
+        // Slot'ları yükle
+        noDocMessage.style.display = 'none';
+        slotContainer.style.display = 'block';
+        slotSelect.innerHTML = '<option value="">Yükleniyor...</option>';
+        slotSelect.disabled = true;
+        
+        // AJAX isteği
+        fetch(`/patient/get-slots/${doctorId}/`)
+            .then(response => response.json())
+            .then(data => {
+                slotSelect.innerHTML = '';
+                
+                if (data.slots.length === 0) {
+                    slotSelect.innerHTML = '<option value="">Müsait slot bulunamadı</option>';
+                    document.getElementById('slot-help').textContent = 'Bu doktor için henüz açık randevu slotu yok';
+                } else {
+                    slotSelect.innerHTML = '<option value="">Saat seçiniz</option>';
+                    data.slots.forEach(slot => {
+                        const option = document.createElement('option');
+                        option.value = slot.id;
+                        option.textContent = slot.label;
+                        slotSelect.appendChild(option);
+                    });
+                    document.getElementById('slot-help').textContent = `${data.slots.length} müsait slot bulundu`;
+                }
+                
+                slotSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Slot yükleme hatası:', error);
+                slotSelect.innerHTML = '<option value="">Hata: Slot\'lar yüklenemedi</option>';
+                slotSelect.disabled = false;
+            });
+    });
+    </script>
+
+    {% if form.errors or appointment_form.errors %}
+    <div style="background: #dc2626; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>⚠️ Lütfen formdaki hataları düzeltin</strong>
+    </div>
+    {% endif %}
+
+    <div style="display: flex; gap: 10px;">
+        <button class="btn" type="submit">✅ Randevu Oluştur</button>
+        <a href="{% url 'patient_dashboard' %}" class="btn" style="background: #64748b;">İptal</a>
+    </div>
+</form>
+
+<div class="card" style="background: #1a2332; margin-top: 20px;">
+    <h4 style="margin: 0 0 10px 0; color: #7c3aed;">ℹ️ Bilgilendirme</h4>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 0.95em;">
+        <li>Triyaj bilgileriniz yapay zeka tarafından analiz edilecek ve doktorunuza iletilecektir</li>
+        <li>Risk seviyeniz otomatik olarak belirlenecek (Düşük/Orta/Yüksek)</li>
+        <li>Doktorunuz AI önerileri ve olası durumları görecektir</li>
+        <li>Bu sistem karar desteği sağlar, nihai karar doktorunuza aittir</li>
+    </ul>
+</div>
+
+{% endblock %}

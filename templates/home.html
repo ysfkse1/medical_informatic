@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}MedAI Klinik - Ana Sayfa{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Medical Informatics Projesi</p>
+        <h1>AI Destekli Akıllı Hastane Yönetim Sistemi</h1>
+        <p style="line-height: 1.8; font-size: 1.05em;">
+            Yapay zeka destekli triyaj, klinik karar destek sistemi (CDSS) ve ilaç etkileşim analizi 
+            içeren yenilikçi bir hastane yönetim sistemi. Hastalar randevu öncesi yapılandırılmış 
+            triyaj bilgileri girer, doktorlar AI önerileri ve ilaç etkileşim uyarılarını görür.
+        </p>
+        
+        <div style="background: #1a2332; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin: 0 0 15px 0; color: #7c3aed;">⚡ Sistem Özellikleri</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.95em;">
+                <div>
+                    <strong style="color: #10b981;">✅ Hasta için:</strong>
+                    <ul style="margin: 5px 0 0 20px; line-height: 1.8;">
+                        <li>Yapılandırılmış triyaj sistemi</li>
+                        <li>Online randevu alma</li>
+                        <li>Geçmiş kayıtlar ve reçeteler</li>
+                        <li>Kişisel profil yönetimi</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong style="color: #7c3aed;">👨‍⚕️ Doktor için:</strong>
+                    <ul style="margin: 5px 0 0 20px; line-height: 1.8;">
+                        <li>AI destekli triyaj özetleri</li>
+                        <li>Risk seviyesi değerlendirme</li>
+                        <li>İlaç etkileşim uyarıları</li>
+                        <li>Klinik karar desteği önerileri</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions" style="margin-top: 30px;">
+            <a class="btn" href="{% url 'patient_login' %}" style="display: flex; align-items: center; gap: 8px;">
+                <span>🧑‍🦽</span> Hasta Girişi
+            </a>
+            <a class="btn ghost" href="{% url 'login' %}" style="display: flex; align-items: center; gap: 8px;">
+                <span>👨‍⚕️</span> Doktor Girişi
+            </a>
+        </div>
+        
+        <p style="margin-top: 20px; font-size: 0.9em; color: #94a3b8;">
+            🏫 <strong>Galatasaray Üniversitesi</strong> - Medical Informatics Dersi Projesi<br>
+            👤 Yusuf Köse
+        </p>
+    </div>
+    
+    <div class="hero-card">
+        <div style="background: #7c3aed; color: white; padding: 15px; border-radius: 8px 8px 0 0; margin: -20px -20px 15px -20px;">
+            <h3 style="margin: 0;">👨‍⚕️ Aktif Doktorlar</h3>
+        </div>
+        
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            {% for doctor in doctors %}
+                <li style="padding: 12px; background: #1a2332; border-radius: 6px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #10b981;">{{ doctor.full_name }}</strong>
+                            <div style="font-size: 0.9em; color: #94a3b8; margin-top: 3px;">
+                                {{ doctor.specialty }}
+                            </div>
+                        </div>
+                        <span style="font-size: 1.5em;">🩺</span>
+                    </div>
+                </li>
+            {% empty %}
+                <li style="text-align: center; padding: 20px; color: #94a3b8;">
+                    Henüz doktor yok.
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #1a2332; border-radius: 6px; font-size: 0.9em;">
+            <strong style="color: #7c3aed;">⚠️ Demo Amaçlı</strong>
+            <p style="margin: 5px 0 0 0; line-height: 1.6; color: #94a3b8;">
+                Bu sistem eğitim amaçlıdır. Gerçek tıbbi kararlar için kullanılmamalıdır.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

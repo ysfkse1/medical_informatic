@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Randevu Detayı{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{{ appointment.patient.full_name }} — {{ appointment.doctor.full_name }}</h2>
+    <p><strong>Randevu:</strong> {{ appointment.scheduled_for|date:"d M Y H:i" }} | <strong>Risk:</strong> {{ appointment.risk_level }}</p>
+    <p><strong>Şikayet:</strong> {{ appointment.patient.primary_complaint }}</p>
+    <p><strong>AI Özeti:</strong> {{ appointment.ai_summary }}</p>
+    <div class="chips">
+        {% for suggestion in appointment.ai_suggestions %}
+            <span class="chip">{{ suggestion }}</span>
+        {% empty %}
+            <span class="chip">Öneri yok</span>
+        {% endfor %}
+    </div>
+    <h3>Triage Verileri</h3>
+    <ul class="triage">
+        <li>Ateş: {{ appointment.triage_data.temperature }}°C</li>
+        <li>Nabız: {{ appointment.triage_data.heart_rate }}</li>
+        <li>Ağrı: {{ appointment.triage_data.pain_level }}/10</li>
+        <li>Ek Semptomlar: {{ appointment.triage_data.symptoms_detail|default:"-" }}</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h3>Reçete Yaz</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>{{ field.label }}{% if field.field.required %}*{% endif %} {{ field }}
+                {% for error in field.errors %}<span class="error">{{ error }}</span>{% endfor %}
+            </label>
+        {% endfor %}
+        <button class="btn" type="submit">Kaydet</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Reçeteler</h3>
+    <div class="list">
+        {% for rx in prescriptions %}
+            <div class="rx">
+                <strong>{{ rx.medication_name }}</strong> — {{ rx.dosage }}<br>
+                <small>{{ rx.instructions }}</small>
+                <p class="alert">AI Etkileşim Notu: {{ rx.ai_interaction_alerts|default:"-" }}</p>
+            </div>
+        {% empty %}
+            <p>Reçete eklenmedi.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

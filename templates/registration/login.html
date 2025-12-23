@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Doktor Girişi{% endblock %}
+
+{% block content %}
+<div class="card auth-card">
+    <h2>Doktor Girişi</h2>
+    <p>Randevuları görmek için giriş yapın.</p>
+    
+    <div style="background: #1a2332; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #7c3aed;">
+        <h4 style="margin: 0 0 10px 0; color: #7c3aed;">🧪 Test Kullanıcıları</h4>
+        <div style="font-size: 0.9em; line-height: 1.6;">
+            <p style="margin: 5px 0;"><strong>Dahiliye:</strong> ayse / doktor123</p>
+            <p style="margin: 5px 0;"><strong>Kardiyoloji:</strong> mehmet / doktor123</p>
+            <p style="margin: 5px 0;"><strong>Acil Tıp:</strong> selin / doktor123</p>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>Kullanıcı Adı {{ form.username }}</label>
+        <label>Şifre {{ form.password }}</label>
+        <button class="btn" type="submit">Giriş Yap</button>
+        {% if form.errors %}
+            <p class="error">Hatalı giriş, tekrar deneyin.</p>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

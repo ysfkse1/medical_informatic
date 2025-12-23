@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ doctor.full_name }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h2>Dr. {{ doctor.full_name }} — {{ doctor.specialty }}</h2>
+        <p style="margin: 5px 0; color: #94a3b8;">Randevu listesi ve triyaj özetleri</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'doctor_manage_slots' %}" class="btn small" style="background: #10b981;">📅 Randevu Slotları</a>
+        <a href="?filter=today" class="btn small" style="{% if request.GET.filter == 'today' %}background: #7c3aed;{% endif %}">Bugün</a>
+        <a href="?filter=week" class="btn small" style="{% if request.GET.filter == 'week' %}background: #7c3aed;{% endif %}">Bu Hafta</a>
+        <a href="?" class="btn small" style="{% if not request.GET.filter %}background: #7c3aed;{% endif %}">Tümü</a>
+    </div>
+</div>
+
+<div class="list">
+    {% for appointment in appointments %}
+        <div class="card">
+            <div class="card-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <strong style="font-size: 1.1em;">{{ appointment.patient.full_name }}</strong>
+                    <span class="badge {{ appointment.risk_level|lower }}">
+                        {% if appointment.risk_level == "Yüksek" %}🚨{% elif appointment.risk_level == "Orta" %}⚠️{% else %}✅{% endif %}
+                        {{ appointment.risk_level }}
+                    </span>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">{{ appointment.scheduled_for|date:"d M Y" }}</div>
+                    <div style="font-size: 0.9em; color: #94a3b8;">{{ appointment.scheduled_for|date:"H:i" }}</div>
+                </div>
+            </div>
+            
+            <div style="background: #1a2332; padding: 12px; border-radius: 6px; margin: 10px 0; font-size: 0.95em;">
+                <div style="white-space: pre-line; line-height: 1.6;">{{ appointment.ai_summary|default:"AI özeti yok" }}</div>
+            </div>
+            
+            {% if appointment.ai_suggestions %}
+            <div style="margin: 10px 0;">
+                <strong style="color: #7c3aed;">📌 AI Önerileri ve Olası Durumlar:</strong>
+                <ul style="margin: 5px 0 0 20px; font-size: 0.9em; line-height: 1.6;">
+                    {% for suggestion in appointment.ai_suggestions %}
+                        <li>{{ suggestion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div style="margin-top: 15px;">
+                <a class="btn small" href="{% url 'appointment_detail' appointment.id %}">📋 Detaylı Görüntüle ve Reçete Yaz</a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="card" style="text-align: center; padding: 40px;">
+            <p style="font-size: 1.1em; color: #94a3b8;">
+                {% if request.GET.filter == 'today' %}
+                    📅 Bugün için randevu bulunamadı.
+                {% elif request.GET.filter == 'week' %}
+                    📆 Bu hafta için randevu bulunamadı.
+                {% else %}
+                    📋 Henüz randevu bulunmuyor.
+                {% endif %}
+            </p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

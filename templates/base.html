@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MedAI Klinik{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">MedAI Klinik</div>
+    <nav>
+        <a href="{% url 'home' %}">Ana Sayfa</a>
+        
+        {% if user.is_authenticated %}
+            {# Doktor ise doktor paneli göster #}
+            {% if user.doctor_profile %}
+                <a href="{% url 'doctor_list' %}">Doktor</a>
+            {# Hasta ise hasta paneli göster #}
+            {% elif user.patient_profile %}
+                <a href="{% url 'patient_dashboard' %}">Hasta</a>
+            {# Admin veya başka rol ise her ikisini de göster #}
+            {% else %}
+                <a href="{% url 'patient_dashboard' %}">Hasta</a>
+                <a href="{% url 'doctor_list' %}">Doktor</a>
+            {% endif %}
+            
+            <span class="user-pill">Giriş: {{ user.username }}</span>
+            <a href="{% url 'logout' %}">Çıkış</a>
+        {% else %}
+            <a href="{% url 'patient_login' %}">Hasta Girişi</a>
+            <a href="{% url 'login' %}">Doktor Girişi</a>
+        {% endif %}
+    </nav>
+</header>
+<main class="container">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="msg {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+<footer class="footer">
+    AI destekli karar desteği demo | Tıbbi kararlar için klinik onay gerektirir.
+</footer>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Hasta Kayıt{% endblock %}
+
+{% block content %}
+<div class="card auth-card">
+    <h2>Hasta Kayıt</h2>
+    <p>Yeni bir hesap oluşturun, ardından randevu alabilirsiniz.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>{{ field.label }} {{ field }}
+                {% for error in field.errors %}<span class="error">{{ error }}</span>{% endfor %}
+            </label>
+        {% endfor %}
+        <button class="btn" type="submit">Kayıt Ol</button>
+    </form>
+    <p>Zaten hesabınız var mı? <a href="{% url 'patient_login' %}">Giriş yapın</a></p>
+</div>
+{% endblock %}

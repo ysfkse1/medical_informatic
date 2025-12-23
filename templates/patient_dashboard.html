@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Hasta Paneli{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Hasta Paneli</h2>
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'patient_profile' %}" class="btn small">👤 Profilim</a>
+        <a href="{% url 'patient_intake' %}" class="btn small">📅 Yeni Randevu</a>
+    </div>
+</div>
+<p>Randevularınızı ve reçetelerinizi görüntüleyin.</p>
+
+{% if patient %}
+    <div class="card">
+        <h3>{{ patient.full_name }}</h3>
+        <p>Yaş: {{ patient.age }} | Cinsiyet: {{ patient.get_gender_display }}</p>
+        <p>Şikayet: {{ patient.primary_complaint }}</p>
+    </div>
+{% else %}
+    <p>Profil bulunamadı. <a href="{% url 'patient_intake' %}">Randevu alırken</a> profil oluşturabilirsiniz.</p>
+{% endif %}
+
+<div class="card">
+    <h3>Randevularım</h3>
+    <div class="list">
+        {% for appt in appointments %}
+            <div class="card">
+                <div class="card-header">
+                    <div><strong>{{ appt.doctor.full_name }}</strong> — {{ appt.doctor.specialty }}</div>
+                    <span>{{ appt.scheduled_for|date:"d M Y H:i" }}</span>
+                </div>
+                <p>Risk: {{ appt.risk_level }}</p>
+                <p>{{ appt.ai_summary|default:"Özet yok" }}</p>
+            </div>
+        {% empty %}
+            <p>Randevu yok.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h3>Reçetelerim</h3>
+    <div class="list">
+        {% for appt in prescriptions %}
+            {% for rx in appt.prescriptions.all %}
+                <div class="rx">
+                    <strong>{{ rx.medication_name }}</strong> — {{ rx.dosage }}<br>
+                    <small>{{ rx.instructions }}</small>
+                    <p class="alert">{{ rx.ai_interaction_alerts|default:"AI notu yok" }}</p>
+                    <small>{{ appt.scheduled_for|date:"d M Y H:i" }} | Dr. {{ appt.doctor.full_name }}</small>
+                </div>
+            {% empty %}
+                <p>Reçete yok.</p>
+            {% endfor %}
+        {% empty %}
+            <p>Reçete yok.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

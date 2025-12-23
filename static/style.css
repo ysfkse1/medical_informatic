@@ -1,0 +1,136 @@
+:root {
+    --bg: #0f172a;
+    --card: #111827;
+    --muted: #94a3b8;
+    --primary: #38bdf8;
+    --accent: #a78bfa;
+    --text: #e2e8f0;
+    --danger: #f87171;
+    --warning: #facc15;
+    --success: #34d399;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: radial-gradient(circle at 20% 20%, rgba(56,189,248,0.1), transparent 25%),
+                radial-gradient(circle at 80% 0%, rgba(167,139,250,0.12), transparent 30%),
+                var(--bg);
+    color: var(--text);
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(15,23,42,0.8);
+    position: sticky;
+    top: 0;
+    backdrop-filter: blur(8px);
+}
+.brand { font-weight: 800; letter-spacing: 0.5px; }
+.topbar a, .topbar span.user-pill {
+    color: var(--text);
+    margin-left: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+.user-pill { opacity: 0.8; }
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: center;
+}
+.hero-card {
+    background: var(--card);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.eyebrow { color: var(--accent); letter-spacing: 1px; font-weight: 700; text-transform: uppercase; }
+.actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
+
+.btn {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #0b1224;
+    border: none;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 15px 40px rgba(56,189,248,0.25);
+}
+.btn.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(148,163,184,0.3);
+}
+.btn.small { padding: 0.45rem 0.8rem; font-size: 0.9rem; }
+
+h1, h2, h3 { margin-top: 0; }
+p { color: var(--muted); }
+
+.card, form.card {
+    background: rgba(17,24,39,0.8);
+    padding: 1.2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(148,163,184,0.15);
+    margin-bottom: 1rem;
+}
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.list { display: grid; gap: 0.75rem; }
+.rx { background: rgba(15,23,42,0.6); padding: 0.75rem; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); }
+.alert { color: var(--warning); font-size: 0.9rem; }
+
+form label { display: block; margin-bottom: 0.6rem; color: var(--muted); }
+form input, form textarea, form select {
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid rgba(148,163,184,0.3);
+    background: rgba(15,23,42,0.6);
+    color: var(--text);
+}
+.two-column { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.error { color: var(--danger); font-size: 0.85rem; display: block; }
+.messages { margin-bottom: 1rem; }
+.msg { padding: 0.65rem; border-radius: 10px; }
+.msg.success { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); }
+.msg.error { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); }
+
+.footer { text-align: center; padding: 2rem; color: var(--muted); }
+
+.badge { padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.85rem; }
+.badge.yüksek { background: rgba(248,113,113,0.15); color: var(--danger); }
+.badge.orta { background: rgba(250,204,21,0.15); color: var(--warning); }
+.badge.düşük { background: rgba(52,211,153,0.15); color: var(--success); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip { background: rgba(148,163,184,0.15); padding: 0.35rem 0.6rem; border-radius: 999px; color: var(--text); }
+.triage { list-style: none; padding: 0; color: var(--muted); }
+
+@media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}

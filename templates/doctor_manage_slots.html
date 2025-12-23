@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Randevu Slotları Yönetimi{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h2>📅 Randevu Slotları Yönetimi</h2>
+        <p style="margin: 5px 0; color: #94a3b8;">Müsait randevu saatlerinizi açıp kapatabilirsiniz</p>
+    </div>
+    <a href="{% url 'doctor_detail' doctor.id %}" class="btn small">← Panele Dön</a>
+</div>
+
+<!-- Yeni Slot Oluşturma -->
+<form method="post" class="card" style="background: #7c3aed; margin-bottom: 20px;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="generate_slots">
+    
+    <h3 style="margin: 0 0 15px 0; color: white;">➕ Toplu Slot Oluştur</h3>
+    <p style="margin: 0 0 15px 0; color: rgba(255,255,255,0.9); font-size: 0.9em;">
+        Belirttiğiniz tarih aralığında çalışma saatlerinize göre otomatik slot oluşturulacak
+    </p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: end;">
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: white;">
+                Başlangıç Tarihi
+                <input type="date" name="start_date" required 
+                       min="{{ today }}"
+                       style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 1em;">
+            </label>
+        </div>
+        
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: white;">
+                Bitiş Tarihi
+                <input type="date" name="end_date" required 
+                       min="{{ today }}"
+                       style="width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 1em;">
+            </label>
+        </div>
+        
+        <button type="submit" class="btn" style="background: #10b981; margin: 0;">
+            ✅ Slot Oluştur
+        </button>
+    </div>
+    
+    <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.9em; color: white;">
+        <strong>ℹ️ Mevcut Ayarlarınız:</strong><br>
+        Çalışma Saatleri: {{ doctor.work_start_time|time:"H:i" }} - {{ doctor.work_end_time|time:"H:i" }} | 
+        Slot Süresi: {{ doctor.slot_duration_minutes }} dk |
+        Çalışma Günleri: 
+        {% for day, is_working in doctor.working_days.items %}
+            {% if is_working %}
+                {{ day|title }}{% if not forloop.last %}, {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</form>
+
+<!-- Mevcut Slotlar -->
+<div class="card">
+    <h3 style="margin: 0 0 20px 0;">📋 Yaklaşan Randevu Slotları (İlk 50)</h3>
+    
+    {% if slots %}
+        <div style="display: grid; gap: 10px;">
+            {% for slot in slots %}
+                <div style="display: flex; justify-content: space-between; align-items: center; 
+                            padding: 15px; border-radius: 8px; 
+                            background: {% if slot.is_available %}#1a2332{% else %}#dc262633{% endif %};">
+                    <div>
+                        <strong style="font-size: 1.1em;">
+                            {{ slot.slot_datetime|date:"d/m/Y (l)" }} - {{ slot.slot_datetime|time:"H:i" }}
+                        </strong>
+                        <span style="margin-left: 15px; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;
+                                     background: {% if slot.is_available %}#10b981{% else %}#dc2626{% endif %}; color: white;">
+                            {% if slot.is_available %}✅ Müsait{% else %}❌ Kapalı{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <form method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_slot">
+                            <input type="hidden" name="slot_id" value="{{ slot.id }}">
+                            <button type="submit" class="btn small" 
+                                    style="background: {% if slot.is_available %}#f59e0b{% else %}#10b981{% endif %};">
+                                {% if slot.is_available %}⏸ Kapat{% else %}▶️ Aç{% endif %}
+                            </button>
+                        </form>
+                        
+                        <form method="post" style="display: inline;" onsubmit="return confirm('Bu slotu silmek istediğinizden emin misiniz?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete_slot">
+                            <input type="hidden" name="slot_id" value="{{ slot.id }}">
+                            <button type="submit" class="btn small" style="background: #dc2626;">
+                                🗑️ Sil
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+            <p style="font-size: 1.2em; margin: 0;">Henüz randevu slotu oluşturmadınız</p>
+            <p style="margin: 10px 0 0 0;">Yukarıdaki formu kullanarak slot oluşturabilirsiniz</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="card" style="background: #1a2332; margin-top: 20px;">
+    <h4 style="margin: 0 0 10px 0; color: #7c3aed;">ℹ️ Nasıl Çalışır?</h4>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 0.95em;">
+        <li>Toplu slot oluşturma ile belirttiğiniz tarih aralığındaki tüm çalışma günleriniz için otomatik slot açılır</li>
+        <li>Her slot, çalışma saatleriniz ve slot sürenize göre oluşturulur</li>
+        <li>Slotları açıp kapatabilir veya tamamen silebilirsiniz</li>
+        <li>Hastalar sadece "Müsait" durumundaki slotları görebilir ve randevu alabilir</li>
+        <li>Zaten randevu alınmış slotlar otomatik olarak kapalı hale gelir</li>
+    </ul>
+</div>
+
+<script>
+// Bugünün tarihini varsayılan olarak set et
+const today = new Date().toISOString().split('T')[0];
+document.querySelector('input[name="start_date"]').value = today;
+const nextWeek = new Date();
+nextWeek.setDate(nextWeek.getDate() + 7);
+document.querySelector('input[name="end_date"]').value = nextWeek.toISOString().split('T')[0];
+</script>
+
+{% endblock %}
