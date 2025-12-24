@@ -1,0 +1,671 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[turkish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{
+    \textbf{AI Destekli Akıllı Hastane Yönetim Sistemi} \\
+    \large Medical Informatics Dersi Projesi \\
+    \vspace{0.5cm}
+    \normalsize Ders Hocası: Burak Arslan
+}
+\author{Yusuf Köse - 21401935 \\ Azat Dündar - 21401947}
+\date{24 Aralık 2025}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Özet}
+Bu rapor, Medical Informatics dersi kapsamında geliştirilen \textbf{AI Destekli Akıllı Hastane Yönetim ve Klinik Karar Destek Sistemi}nin detaylı teknik ve işlevsel açıklamasını sunmaktadır. Öncelikli olarak idari görevler ve veri depolama üzerine odaklanan geleneksel hastane bilgi sistemlerinden farklı olarak, bu sistem yapay zeka teknolojilerini klinik iş akışlarına entegre ederek modern sağlık bilişiminin dönüştürücü potansiyelini ortaya koymaktadır.
+
+Sistem, sağlık hizmetlerindeki kritik zorlukları ele alarak randevu öncesi hasta durumunu değerlendiren AI destekli triyaj, konsültasyon sırasında hekimlere veri odaklı klinik karar desteği sağlama ve reçete yazımı sırasında potansiyel ilaç etkileşimlerini otomatik analiz etme özelliklerini uygulamaktadır. Django 6.0 framework üzerine kurulu ve OpenAI'nin GPT-4o-mini modeli ile güçlendirilmiş platform, rol tabanlı kimlik doğrulama, dinamik randevu planlama, gerçek zamanlı risk değerlendirmesi ve çift dilli arayüz desteği gibi kapsamlı özellikleri içermektedir.
+
+Bu proje sadece tıbbi bilişim ilkelerinin pratik bir gösterimi olarak değil, aynı zamanda yapay zekanın hasta güvenliğini nasıl artırabileceğini, hekim bilişsel yükünü nasıl azaltabileceğini ve akıllı otomasyon ve karar destek sistemleri aracılığıyla genel sağlık hizmetleri kalitesini nasıl iyileştirebileceğini vurgulamaktadır.
+
+\section{Giriş}
+
+\subsection{Proje Motivasyonu}
+Geleneksel hastane bilgi sistemleri genellikle sadece kayıt tutma, randevu yönetimi ve temel veri saklama işlevlerini yerine getirmekte, klinik karar alma süreçlerine aktif katkı sağlamadan pasif tıbbi bilgi depoları olarak çalışmaktadır. Bu eski sistemler, idari yükü azaltmak yerine genellikle artırmakta, hekimlerin hasta geçmişlerini manuel olarak gözden geçirmesini, ilaç etkileşimlerini çapraz kontrol etmesini ve risk seviyelerini akıllı yardım olmadan değerlendirmesini gerektirmektedir.
+
+Sağlık sektörü, geleneksel sistemlerin ele alamadığı çeşitli kritik zorluklarla karşı karşıyadır:
+\begin{itemize}
+    \item \textbf{Bilgi Yükü:} Hekimler sınırlı konsültasyon süreleri içinde büyük miktarda hasta verisini işlemek zorundadır, bu da potansiyel gözden kaçmalara ve teşhis hatalarına yol açabilmektedir.
+    \item \textbf{İlaç Güvenliği:} Manuel ilaç etkileşim kontrolü zaman alıcı ve insan hatasına açıktır; advers ilaç olayları önlenebilir hasta zararının önemli bir nedenini oluşturmaktadır.
+    \item \textbf{Tutarsız Triyaj:} Hasta önceliklendirmesi genellikle yalnızca subjektif değerlendirmeye dayanmakta, bu da bakım sunumunda değişkenliğe ve yüksek riskli hastalar için potansiyel gecikmelere yol açmaktadır.
+    \item \textbf{Bilgi Boşlukları:} Deneyimli hekimler bile ansiklopedik tıbbi bilgiyi, özellikle nadir ilaç etkileşimleri veya gelişmekte olan klinik kılavuzlar konusunda, akılda tutamamaktadır.
+\end{itemize}
+
+Bu projede, klinik iş akışlarına aktif katılarak sağlık hizmeti sunumunu dönüştüren akıllı bir sistem geliştirdik. Yapay zeka ve modern web teknolojilerinden yararlanarak platformumuz, hasta bakım süreçlerini optimize etmekte, hekimlere gerçek zamanlı karar desteği sağlamakta ve otomatik risk değerlendirmesi ve etkileşim analizi yoluyla hasta güvenliğini artırmaktadır. Bu, pasif kayıt tutmadan aktif klinik ortaklığa doğru bir paradigma değişimini temsil etmekte ve sağlık hizmetlerini akıllı bilgi yönetimi yoluyla iyileştirmeye adanmış bir disiplin olarak \textbf{Medical Informatics}in temel ilkelerini örneklendirmektedir.
+
+\subsection{Projenin Amacı}
+\begin{itemize}[leftmargin=2cm]
+    \item Hasta ve doktor arasındaki dijital etkileşimi güçlendirmek
+    \item Randevu öncesi \textbf{AI destekli triyaj} uygulamak
+    \item Doktorlara \textbf{klinik karar desteği} sağlamak
+    \item Reçete yazımı sırasında \textbf{ilaç etkileşim analizi} yapmak
+    \item Yapay zekânın sağlık bilişiminde karar destekleyici rolünü göstermek
+    \item Modern web teknolojileri ile ölçeklenebilir bir mimari oluşturmak
+\end{itemize}
+
+\subsection{Klasik Sistemlerden Farkları}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|p{5cm}|p{5cm}|}
+\hline
+\textbf{Klasik Sistemler} & \textbf{Bu Proje} \\
+\hline
+Basit randevu kaydı & AI destekli triyaj ile risk analizi \\
+\hline
+Manuel kayıt ve form doldurma & Yapılandırılmış veri toplama \\
+\hline
+Doktor sezgisine dayalı karar & AI destekli klinik öneriler \\
+\hline
+Manuel ilaç kontrolü & Otomatik ilaç etkileşim analizi \\
+\hline
+Statik hasta kayıtları & Dinamik risk değerlendirmesi \\
+\hline
+Tek dil desteği & Çift dilli (TR/EN) altyapı \\
+\hline
+\end{tabular}
+\caption{Klasik sistemler ile geliştirilen sistem arasındaki farklar}
+\end{table}
+
+\section{Sistem Mimarisi}
+
+\subsection{Teknoloji Yığını}
+\begin{itemize}
+    \item \textbf{Backend Framework:} Django 6.0 (Python 3.12.4)
+    \item \textbf{Veritabanı:} SQLite (geliştirme ortamı için)
+    \item \textbf{AI/ML Servisler:} OpenAI GPT-4o-mini API
+    \item \textbf{Frontend:} Django Templates, HTML5, CSS3
+    \item \textbf{Güvenlik:} Django Authentication System
+    \item \textbf{Dil Desteği:} Session-based TR/EN çift dilli sistem
+\end{itemize}
+
+\subsection{Proje Yapısı}
+Proje, modüler Django mimarisi kullanılarak geliştirilmiştir:
+
+\begin{lstlisting}[language=bash, caption=Proje dizin yapısı]
+medical_informatics_proje/
+├── clinic/                 # Ana uygulama modülü
+│   ├── models.py          # Veri modelleri
+│   ├── views.py           # İş mantığı ve view'lar
+│   ├── forms.py           # Form tanımları
+│   ├── utils.py           # AI entegrasyonu ve yardımcı fonksiyonlar
+│   ├── urls.py            # URL yönlendirmeleri
+│   └── migrations/        # Veritabanı migration dosyaları
+├── templates/             # HTML şablonları
+│   ├── base.html          # Ana şablon
+│   ├── home.html          # Landing page
+│   ├── patient_*.html     # Hasta arayüzleri
+│   └── doctor_*.html      # Doktor arayüzleri
+├── static/                # CSS ve statik dosyalar
+├── medsys/                # Django proje ayarları
+└── db.sqlite3             # Veritabanı dosyası
+\end{lstlisting}
+
+\subsection{Veritabanı Modelleri}
+Sistem, aşağıdaki ana varlık modellerini içermektedir:
+
+\begin{enumerate}
+    \item \textbf{Patient (Hasta):} Demografik bilgiler, alerjiler, şikayetler
+    \item \textbf{Doctor (Doktor):} Uzmanlık alanı, çalışma saatleri, slot ayarları
+    \item \textbf{Appointment (Randevu):} Triyaj verileri, AI analiz sonuçları, risk seviyesi
+    \item \textbf{Prescription (Reçete):} İlaç bilgileri, dozaj, AI etkileşim uyarıları
+    \item \textbf{AppointmentSlot (Randevu Slotu):} Doktor müsaitlik durumu
+\end{enumerate}
+
+\section{Sistem Özellikleri}
+
+\subsection{Kullanıcı Rolleri ve Yetkilendirme}
+
+\subsubsection{Hasta Kullanıcısı}
+\textbf{Kayıt ve Giriş:}
+\begin{itemize}
+    \item Özel hasta giriş sistemi (\texttt{/patient/login/})
+    \item Doktor hesabı ile hasta girişi engellenir
+    \item Yeni hasta kaydı oluşturma
+\end{itemize}
+
+\textbf{Profil Yönetimi:}
+\begin{itemize}
+    \item Kişisel bilgiler (ad, yaş, cinsiyet, kilo, boy)
+    \item Kronik hastalıklar ve şikayetler
+    \item Alerji bilgileri
+\end{itemize}
+
+\textbf{Randevu Süreci:}
+\begin{itemize}
+    \item Doktor seçimi ve müsait slot görüntüleme
+    \item \textbf{AI destekli triyaj formu} doldurma
+    \item Randevu onayı ve takibi
+    \item Geçmiş randevu ve reçete görüntüleme
+\end{itemize}
+
+\subsubsection{Doktor Kullanıcısı}
+\textbf{Giriş ve Güvenlik:}
+\begin{itemize}
+    \item Ayrı doktor giriş sistemi (\texttt{/login/})
+    \item Hasta hesabı ile doktor girişi engellenir
+    \item Profil yönetimi ve istatistikler
+\end{itemize}
+
+\textbf{Randevu Yönetimi:}
+\begin{itemize}
+    \item Günlük, haftalık ve tüm randevular filtreleme
+    \item Hasta triyaj sonuçlarını görüntüleme
+    \item AI önerilerini inceleme
+    \item Risk seviyesi değerlendirmesi
+\end{itemize}
+
+\textbf{Reçete Yazımı:}
+\begin{itemize}
+    \item Dijital reçete oluşturma
+    \item Otomatik ilaç etkileşim kontrolü
+    \item Reçete düzenleme ve silme
+    \item Alerji uyarı sistemi
+\end{itemize}
+
+\textbf{Slot Yönetimi:}
+\begin{itemize}
+    \item Çalışma saatleri belirleme
+    \item Toplu randevu slotu oluşturma
+    \item Müsaitlik durumu güncelleme
+\end{itemize}
+
+\subsection{AI Destekli Triyaj Sistemi}
+
+\subsubsection{Veri Toplama Süreci}
+Hastadan randevu öncesi aşağıdaki bilgiler toplanır:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Alan} & \textbf{Açıklama} \\
+\hline
+Ana Şikayet & Hastanın başvuru nedeni (metin) \\
+\hline
+Şikayet Süresi & Birkaç saat / 1-3 gün / 1 hafta / 1-4 hafta / 1+ ay \\
+\hline
+Ağrı Seviyesi & 0-10 arası skala \\
+\hline
+Vücut Isısı & Derece cinsinden (°C) \\
+\hline
+Nabız & Dakikadaki atım sayısı \\
+\hline
+Nefes Darlığı & Yok / Hafif / Orta / Şiddetli \\
+\hline
+Geçmiş Durum & İlk kez / Daha önce yaşandı / Kronik \\
+\hline
+Ek Semptomlar & Serbest metin açıklaması \\
+\hline
+\end{tabular}
+\caption{Triyaj veri alanları}
+\end{table}
+
+\subsubsection{AI Analiz Süreci}
+Toplanan veriler \textbf{OpenAI GPT-4o-mini} modeline gönderilerek analiz edilir:
+
+\begin{lstlisting}[language=Python, caption=AI Triyaj Analizi]
+def analyze_triage(patient, triage_data, language='tr'):
+    # OpenAI API ile triyaj analizi
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    
+    prompt = f"""
+    Hasta: {patient.full_name}, Yaş: {patient.age}
+    Şikayet: {patient.primary_complaint}
+    Vital Bulgular: Ateş {triage_data['temperature']}°C, 
+                    Nabız {triage_data['heart_rate']}, 
+                    Ağrı {triage_data['pain_level']}/10
+    
+    Risk seviyesi (Düşük/Orta/Yüksek), 
+    olası durumlar ve öneriler üret.
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2
+    )
+    
+    return TriageAnalysis(
+        summary=...,
+        risk_level=...,
+        suggestions=[...],
+        possible_conditions=[...]
+    )
+\end{lstlisting}
+
+\subsubsection{AI Çıktıları}
+\begin{enumerate}
+    \item \textbf{Risk Seviyesi:} Düşük / Orta / Yüksek
+    \item \textbf{Özet Rapor:} Hasta durumunun kısa açıklaması
+    \item \textbf{Klinik Öneriler:} Doktor için yapılandırılmış öneriler
+    \item \textbf{Olası Durumlar:} AI tarafından belirlenen olası hastalıklar
+\end{enumerate}
+
+\textbf{Önemli Not:} AI tanı koymaz, yalnızca karar desteği sağlar. Nihai karar her zaman doktora aittir.
+
+\subsection{İlaç Etkileşim Analizi}
+
+\subsubsection{Kontrol Mekanizmaları}
+Doktor reçete yazarken sistem otomatik olarak aşağıdaki kontrolleri yapar:
+
+\begin{enumerate}
+    \item \textbf{İlaç-İlaç Etkileşimleri}
+    \begin{itemize}
+        \item Mevcut ilaçlar ile yeni ilaç karşılaştırması
+        \item Bilinen etkileşim veritabanı kontrolü
+        \item AI tabanlı etkileşim tahmini
+    \end{itemize}
+    
+    \item \textbf{İlaç-Alerji Kontrolü}
+    \begin{itemize}
+        \item Penisilin alerjisi kontrolü
+        \item Aspirin ve diğer NSAID alerjileri
+        \item Hasta alerji geçmişi karşılaştırması
+    \end{itemize}
+    
+    \item \textbf{Hasta Faktörleri}
+    \begin{itemize}
+        \item Yaş bazlı kontroller (65+ için uyarılar)
+        \item Kilo-doz uyumu
+        \item Kronik hastalık etkileşimleri
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{AI Etkileşim Analizi}
+\begin{lstlisting}[language=Python, caption=İlaç Etkileşim Kontrolü]
+def check_drug_interactions(patient, medication, existing, language='tr'):
+    # AI ile ilaç etkileşim analizi
+    prompt = f"""
+    SADECE gerçek bir etkileşim, risk veya 
+    alerji uyuşmazlığı varsa uyarı ver.
+    
+    Hasta: Yaş {patient.age}, Alerjiler: {patient.allergies}
+    Yeni ilaç: {medication}
+    Mevcut ilaçlar: {existing}
+    
+    Örnek: B12 vitamini penisilin içermez, 
+    penisilin alerjisi için sorun yok.
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1
+    )
+    
+    return response.choices[0].message.content
+\end{lstlisting}
+
+\subsubsection{Uyarı Sistemi}
+\begin{itemize}
+    \item \textcolor{red}{\textbf{Kritik Uyarılar:}} Mutlak kontrendikasyonlar (örn: penisilin alerjisi + amoksisilin)
+    \item \textcolor{orange}{\textbf{Dikkat Uyarıları:}} Potansiyel riskler (örn: Aspirin + İbuprofen)
+    \item \textcolor{blue}{\textbf{Bilgi Notları:}} Yaş, kilo bazlı öneriler
+\end{itemize}
+
+\subsection{Randevu Yönetimi}
+
+\subsubsection{Slot Sistemi}
+Doktorlar kendi çalışma programlarını oluşturabilir:
+\begin{itemize}
+    \item Çalışma saatleri: Başlangıç - Bitiş (örn: 09:00-17:00)
+    \item Slot süresi: 15, 30, 45 veya 60 dakika
+    \item Toplu slot oluşturma (örn: 1 ay için tüm slotları aç)
+    \item Otomatik geçmiş slot kapatma
+\end{itemize}
+
+\subsubsection{Randevu Süreci}
+\begin{enumerate}
+    \item Hasta doktor seçer
+    \item Müsait slotlar görüntülenir (Türkiye saati ile)
+    \item Triyaj formu doldurulur
+    \item AI analizi otomatik çalışır
+    \item Randevu onaylanır ve doktora bildirilir
+\end{enumerate}
+
+\section{Teknik Detaylar}
+
+\subsection{Güvenlik ve Gizlilik}
+
+\subsubsection{Kimlik Doğrulama}
+\begin{itemize}
+    \item Django built-in authentication system
+    \item Şifreli parola saklama (PBKDF2 algoritması)
+    \item Session-based oturum yönetimi
+    \item Rol bazlı erişim kontrolü (hasta/doktor ayrımı)
+\end{itemize}
+
+\subsubsection{Veri Güvenliği}
+\begin{itemize}
+    \item CSRF token koruması tüm formlarda
+    \item SQL injection koruması (Django ORM)
+    \item XSS koruması (Django template auto-escaping)
+    \item Hassas API anahtarları .env dosyasında
+\end{itemize}
+
+\subsection{Performans Optimizasyonları}
+
+\begin{itemize}
+    \item \texttt{select\_related()} ile N+1 query problemi çözümü
+    \item Database indexing (unique\_together, ordering)
+    \item AI API timeout yönetimi
+    \item Geçmiş slot'ların otomatik temizlenmesi
+\end{itemize}
+
+\subsection{Çift Dilli Altyapı}
+
+Sistem, gelecekteki uluslararası kullanım için çift dilli (TR/EN) altyapı ile tasarlanmıştır:
+
+\begin{lstlisting}[language=Python, caption=Dil Yönetimi]
+# Session'da dil tercihi saklanır
+request.session['language'] = 'tr'  # veya 'en'
+
+# Template'lerde koşullu çeviri
+{% if language == 'en' %}
+    Patient Panel
+{% else %}
+    Hasta Paneli
+{% endif %}
+
+# AI promptları dil parametresi alır
+analyze_triage(patient, triage_data, language='tr')
+\end{lstlisting}
+
+\section{Kullanıcı Arayüzü}
+
+\subsection{Tasarım Prensipleri}
+\begin{itemize}
+    \item \textbf{Responsive Design:} Mobil ve desktop uyumlu
+    \item \textbf{Dark Theme:} Modern, göz yormayan arayüz
+    \item \textbf{Gradient Accents:} Mor-mavi renk paleti
+    \item \textbf{Icon Usage:} Emoji tabanlı görsel iletişim
+    \item \textbf{Card-Based Layout:} Modüler içerik organizasyonu
+\end{itemize}
+
+\subsection{Ana Sayfalar}
+
+\subsubsection{Landing Page}
+\begin{itemize}
+    \item Sistem özelliklerinin tanıtımı
+    \item AI destekli özelliklerin vurgulanması
+    \item Hasta ve doktor için ayrı giriş butonları
+    \item Aktif doktor listesi
+    \item Demo uyarısı
+\end{itemize}
+
+\subsubsection{Hasta Dashboard}
+\begin{itemize}
+    \item Profil özeti (yaş, cinsiyet, şikayet)
+    \item Randevu listesi (tarih, doktor, risk seviyesi)
+    \item Randevuya bağlı reçeteler
+    \item İlaç etkileşim uyarıları
+    \item Yeni randevu butonu
+\end{itemize}
+
+\subsubsection{Doktor Dashboard}
+\begin{itemize}
+    \item Randevu filtreleme (bugün, bu hafta, tümü)
+    \item Hasta triyaj özetleri
+    \item AI risk değerlendirmeleri
+    \item Klinik öneriler ve uyarılar
+    \item Detaylı randevu görünümü
+\end{itemize}
+
+\subsubsection{Randevu Detay Sayfası}
+\begin{itemize}
+    \item Hasta demografik bilgileri
+    \item Triyaj verileri (vital bulgular, semptomlar)
+    \item AI analiz sonuçları
+    \item Reçete yazma formu
+    \item Mevcut reçeteler ve düzenleme butonları
+\end{itemize}
+
+\section{Kod Analizi ve İstatistikler}
+
+\subsection{Proje Ölçekleri}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Dosya Türü} & \textbf{Satır Sayısı} \\
+\hline
+Python (Backend) & $\sim$2,500 satır \\
+HTML Templates & $\sim$1,800 satır \\
+CSS & $\sim$300 satır \\
+\hline
+\textbf{Toplam} & \textbf{$\sim$4,600 satır} \\
+\hline
+\end{tabular}
+\caption{Kod satırı istatistikleri}
+\end{table}
+
+\subsection{Temel Modüller}
+\begin{enumerate}
+    \item \textbf{models.py (130 satır):} Veri modelleri ve ilişkiler
+    \item \textbf{views.py (549 satır):} İş mantığı ve view fonksiyonları
+    \item \textbf{utils.py (390 satır):} AI entegrasyonu ve yardımcı fonksiyonlar
+    \item \textbf{forms.py (200 satır):} Form tanımları ve validasyonlar
+\end{enumerate}
+
+\section{Test ve Demo}
+
+\subsection{Demo Kullanıcılar}
+Sistem, test amaçlı demo kullanıcıları içermektedir:
+
+\textbf{Doktorlar:}
+\begin{itemize}
+    \item \texttt{ayse / doktor123} - Dahiliye
+    \item \texttt{mehmet / doktor123} - Kardiyoloji
+    \item \texttt{selin / doktor123} - Acil Tıp
+\end{itemize}
+
+\textbf{Hastalar:}
+\begin{itemize}
+    \item \texttt{test\_hasta / hasta123}
+    \item \texttt{aylin\_hasta / hasta123}
+\end{itemize}
+
+\subsection{Test Senaryoları}
+\begin{enumerate}
+    \item \textbf{Hasta Akışı:}
+    \begin{itemize}
+        \item Kayıt ol
+        \item Profil oluştur
+        \item Doktor seç
+        \item Triyaj formu doldur
+        \item Randevu al
+        \item Reçeteleri görüntüle
+    \end{itemize}
+    
+    \item \textbf{Doktor Akışı:}
+    \begin{itemize}
+        \item Giriş yap
+        \item Randevuları filtrele
+        \item Triyaj sonuçlarını incele
+        \item Reçete yaz
+        \item İlaç etkileşim uyarılarını gör
+        \item Slot yönetimi yap
+    \end{itemize}
+    
+    \item \textbf{AI Test:}
+    \begin{itemize}
+        \item Yüksek ateş + şiddetli ağrı → Yüksek risk
+        \item Kronik şikayet → Detaylı tetkik önerisi
+        \item İlaç alerjisi + aynı grup ilaç → Kritik uyarı
+    \end{itemize}
+\end{enumerate}
+
+\section{Sonuçlar ve Değerlendirme}
+
+\subsection{Projenin Başarıları}
+\begin{enumerate}
+    \item \textbf{AI Entegrasyonu:} OpenAI API ile başarılı klinik karar desteği
+    \item \textbf{Kullanıcı Deneyimi:} Modern, kullanıcı dostu arayüz
+    \item \textbf{Güvenlik:} Rol bazlı erişim ve veri koruması
+    \item \textbf{Ölçeklenebilirlik:} Modüler mimari ve temiz kod
+    \item \textbf{Çift Dilli Altyapı:} Uluslararası kullanım potansiyeli
+\end{enumerate}
+
+\subsection{Gelecek Geliştirmeler}
+\begin{itemize}
+    \item PostgreSQL veya MySQL gibi enterprise veritabanı
+    \item REST API ve mobil uygulama entegrasyonu
+    \item Daha gelişmiş AI modelleri (fine-tuning)
+    \item Elektronik sağlık kayıtları (EHR) entegrasyonu
+    \item Telemedicine özellikleri
+    \item Laboratuvar sonuçları modülü
+    \item Radyoloji görüntü analizi
+\end{itemize}
+
+\subsection{Akademik Katkı}
+Bu proje, Medical Informatics dersi kapsamında:
+\begin{itemize}
+    \item Yapay zekânın klinik karar desteğindeki rolünü pratik olarak gösterdi
+    \item Hasta güvenliğini artıran ilaç etkileşim sistemlerini uyguladı
+    \item Modern web teknolojileri ile sağlık bilişimi entegrasyonunu gösterdi
+    \item Triyaj sistemlerinin dijitalleşmesine örnek teşkil etti
+\end{itemize}
+
+\section{Kaynaklar}
+
+\begin{enumerate}
+    \item Django Documentation. (2025). \textit{Django Web Framework}. \url{https://docs.djangoproject.com/}
+    \item OpenAI. (2025). \textit{GPT-4 API Documentation}. \url{https://platform.openai.com/docs}
+    \item Shortliffe, E. H., \& Cimino, J. J. (2021). \textit{Biomedical Informatics: Computer Applications in Health Care and Biomedicine}. Springer.
+    \item Berner, E. S. (2007). \textit{Clinical Decision Support Systems: Theory and Practice}. Springer.
+    \item Medical Informatics Ders Notları. (2025). Galatasaray Üniversitesi.
+\end{enumerate}
+
+\section{Ekler}
+
+\subsection{A - Sistem Kurulumu}
+\begin{lstlisting}[language=bash, caption=Kurulum komutları]
+# Virtual environment oluştur
+python -m venv .venv
+source .venv/bin/activate
+
+# Bağımlılıkları yükle
+pip install django openai anthropic pytz
+
+# Veritabanını oluştur
+python manage.py migrate
+
+# Demo doktorları oluştur
+python manage.py seed_demo_doctors
+
+# Sunucuyu başlat
+python manage.py runserver
+\end{lstlisting}
+
+\subsection{B - Çevre Değişkenleri}
+\begin{lstlisting}[caption=.env dosyası]
+SECRET_KEY=django-secret-key-here
+DEBUG=True
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key  # Opsiyonel
+\end{lstlisting}
+
+\subsection{C - Veritabanı Şeması}
+
+\textbf{Patient Modeli:}
+\begin{itemize}
+    \item user (ForeignKey)
+    \item full\_name (CharField)
+    \item age (PositiveIntegerField)
+    \item gender (CharField - choices)
+    \item weight\_kg (DecimalField)
+    \item height\_cm (DecimalField)
+    \item primary\_complaint (TextField)
+    \item allergies (TextField)
+\end{itemize}
+
+\textbf{Doctor Modeli:}
+\begin{itemize}
+    \item user (ForeignKey)
+    \item full\_name (CharField)
+    \item specialty (CharField)
+    \item email (EmailField)
+    \item work\_start\_time (TimeField)
+    \item work\_end\_time (TimeField)
+    \item slot\_duration\_minutes (IntegerField)
+    \item working\_days (JSONField)
+\end{itemize}
+
+\textbf{Appointment Modeli:}
+\begin{itemize}
+    \item patient (ForeignKey)
+    \item doctor (ForeignKey)
+    \item scheduled\_for (DateTimeField)
+    \item status (CharField - choices)
+    \item triage\_data (JSONField)
+    \item ai\_summary (TextField)
+    \item ai\_suggestions (JSONField)
+    \item risk\_level (CharField)
+\end{itemize}
+
+\textbf{Prescription Modeli:}
+\begin{itemize}
+    \item appointment (ForeignKey)
+    \item doctor (ForeignKey)
+    \item medication\_name (CharField)
+    \item dosage (CharField)
+    \item instructions (TextField)
+    \item ai\_interaction\_alerts (TextField)
+\end{itemize}
+
+\section{Sonuç}
+
+Bu proje, Medical Informatics dersi kapsamında geliştirilen \textbf{AI Destekli Akıllı Hastane Yönetim Sistemi}, modern sağlık bilişimi teknolojilerinin pratik uygulamasını başarıyla göstermektedir. 
+
+Yapay zekâ destekli triyaj, klinik karar desteği ve ilaç etkileşim analizi gibi özellikler, klasik hastane bilgi sistemlerinden önemli ölçüde ayrışmakta ve hasta güvenliğini artıran, doktor iş yükünü azaltan yenilikçi çözümler sunmaktadır.
+
+Proje, Django framework'ün gücü, OpenAI'nin AI yetenekleri ve modern web teknolojileri ile entegre edilerek ölçeklenebilir, güvenli ve kullanıcı dostu bir sistem haline getirilmiştir.
+
+\vspace{1cm}
+
+\textit{Not: Bu sistem eğitim amaçlıdır ve gerçek klinik ortamlarda kullanılmadan önce klinik validasyon, düzenleyici onaylar ve kapsamlı testlerden geçmelidir.}
+
+\end{document}

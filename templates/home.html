@@ -1,60 +1,198 @@
 {% extends "base.html" %}
 
-{% block title %}MedAI Klinik - Ana Sayfa{% endblock %}
+{% block title %}{% if language == 'en' %}MedAI Clinic - Home{% else %}MedAI Klinik - Ana Sayfa{% endif %}{% endblock %}
 
 {% block content %}
 <section class="hero">
     <div>
-        <p class="eyebrow">Medical Informatics Projesi</p>
-        <h1>AI Destekli Akıllı Hastane Yönetim Sistemi</h1>
-        <p style="line-height: 1.8; font-size: 1.05em;">
-            Yapay zeka destekli triyaj, klinik karar destek sistemi (CDSS) ve ilaç etkileşim analizi 
-            içeren yenilikçi bir hastane yönetim sistemi. Hastalar randevu öncesi yapılandırılmış 
-            triyaj bilgileri girer, doktorlar AI önerileri ve ilaç etkileşim uyarılarını görür.
+        <p class="eyebrow">{% if language == 'en' %}AI-Powered Healthcare Platform{% else %}Yapay Zeka Destekli Sağlık Platformu{% endif %}</p>
+        <h1>{% if language == 'en' %}Smart Hospital Management System{% else %}Akıllı Hastane Yönetim Sistemi{% endif %}</h1>
+        <p style="line-height: 1.8; font-size: 1.1em; margin: 20px 0;">
+            {% if language == 'en' %}
+            Next-generation health management system offering AI-powered triage, risk analysis and drug interaction control.
+            {% else %}
+            Yapay zeka ile desteklenen triyaj, risk analizi ve ilaç etkileşim kontrolü sunan yeni nesil sağlık yönetim sistemi.
+            {% endif %}
         </p>
         
-        <div style="background: #1a2332; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin: 0 0 15px 0; color: #7c3aed;">⚡ Sistem Özellikleri</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.95em;">
-                <div>
-                    <strong style="color: #10b981;">✅ Hasta için:</strong>
-                    <ul style="margin: 5px 0 0 20px; line-height: 1.8;">
-                        <li>Yapılandırılmış triyaj sistemi</li>
-                        <li>Online randevu alma</li>
-                        <li>Geçmiş kayıtlar ve reçeteler</li>
-                        <li>Kişisel profil yönetimi</li>
-                    </ul>
+        <!-- Ana Değer Önermesi -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 12px; margin: 30px 0; box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);">
+            <h2 style="margin: 0 0 15px 0; font-size: 1.4em; color: white;">✨ {% if language == 'en' %}What We Offer{% else %}Neler Sunuyoruz{% endif %}?</h2>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                    <div style="font-size: 2em; margin-bottom: 8px;">🤖</div>
+                    <strong style="color: white; display: block; margin-bottom: 5px;">{% if language == 'en' %}AI-Powered Triage{% else %}AI Destekli Triyaj{% endif %}</strong>
+                    <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">{% if language == 'en' %}Pre-appointment risk assessment with AI{% else %}Randevu öncesi yapay zeka ile risk değerlendirmesi{% endif %}</span>
                 </div>
-                <div>
-                    <strong style="color: #7c3aed;">👨‍⚕️ Doktor için:</strong>
-                    <ul style="margin: 5px 0 0 20px; line-height: 1.8;">
-                        <li>AI destekli triyaj özetleri</li>
-                        <li>Risk seviyesi değerlendirme</li>
-                        <li>İlaç etkileşim uyarıları</li>
-                        <li>Klinik karar desteği önerileri</li>
-                    </ul>
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                    <div style="font-size: 2em; margin-bottom: 8px;">💊</div>
+                    <strong style="color: white; display: block; margin-bottom: 5px;">{% if language == 'en' %}Drug Interaction Check{% else %}İlaç Etkileşim Kontrolü{% endif %}</strong>
+                    <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">{% if language == 'en' %}Automatic safety alerts during prescription{% else %}Reçete yazımında otomatik güvenlik uyarıları{% endif %}</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                    <div style="font-size: 2em; margin-bottom: 8px;">🎯</div>
+                    <strong style="color: white; display: block; margin-bottom: 5px;">{% if language == 'en' %}Smart Appointment System{% else %}Akıllı Randevu Sistemi{% endif %}</strong>
+                    <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">{% if language == 'en' %}Easy appointment booking and tracking{% else %}Kolay randevu alma ve takip sistemi{% endif %}</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                    <div style="font-size: 2em; margin-bottom: 8px;">📊</div>
+                    <strong style="color: white; display: block; margin-bottom: 5px;">{% if language == 'en' %}Clinical Decision Support{% else %}Klinik Karar Desteği{% endif %}</strong>
+                    <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">{% if language == 'en' %}AI-based recommendation system for doctors{% else %}Doktorlar için AI tabanlı öneri sistemi{% endif %}</span>
                 </div>
             </div>
         </div>
         
-        <div class="actions" style="margin-top: 30px;">
-            <a class="btn" href="{% url 'patient_login' %}" style="display: flex; align-items: center; gap: 8px;">
-                <span>🧑‍🦽</span> Hasta Girişi
-            </a>
-            <a class="btn ghost" href="{% url 'login' %}" style="display: flex; align-items: center; gap: 8px;">
-                <span>👨‍⚕️</span> Doktor Girişi
-            </a>
+        <!-- Hasta İçin Özellikler -->
+        <div style="background: #1a2332; padding: 25px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <h3 style="margin: 0 0 20px 0; color: #10b981; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.8em;">👤</span>
+                <span>{% if language == 'en' %}What Can You Do as a Patient?{% else %}Hasta Olarak Neler Yapabilirsiniz?{% endif %}</span>
+            </h3>
+            <div style="display: grid; gap: 15px;">
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">📝</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #10b981;">{% if language == 'en' %}Smart Triage Form{% else %}Akıllı Triyaj Formu{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            Enter your complaints and symptoms before making an appointment. 
+                            AI instantly performs risk analysis and sends a detailed report to your doctor.
+                            {% else %}
+                            Randevu almadan önce şikayetlerinizi ve semptomlarınızı girin. 
+                            Yapay zeka anında risk analizi yapar ve doktorunuza detaylı rapor gönderir.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">📅</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #10b981;">{% if language == 'en' %}Easy Appointment Management{% else %}Kolay Randevu Yönetimi{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            See available doctors, choose a convenient time and book an appointment instantly. 
+                            Track all your appointments from a single place.
+                            {% else %}
+                            Müsait doktorları görün, uygun saati seçin ve hemen randevu alın. 
+                            Tüm randevularınızı tek yerden takip edin.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">💊</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #10b981;">{% if language == 'en' %}Digital Prescription Tracking{% else %}Dijital Reçete Takibi{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            View all your prescriptions digitally. See which doctor prescribed which medication, 
+                            and easily access usage instructions and safety warnings.
+                            {% else %}
+                            Tüm reçetelerinizi dijital ortamda görün. Hangi doktor hangi ilacı yazdı, 
+                            kullanım talimatları ve güvenlik uyarılarına kolayca erişin.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">🏥</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #10b981;">{% if language == 'en' %}Medical History{% else %}Sağlık Geçmişi{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            Your past appointments, diagnoses and treatments are securely stored.
+                            {% else %}
+                            Geçmiş randevularınız, aldığınız teşhisler ve tedavileriniz güvenli bir şekilde saklanır.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <p style="margin-top: 20px; font-size: 0.9em; color: #94a3b8;">
-            🏫 <strong>Galatasaray Üniversitesi</strong> - Medical Informatics Dersi Projesi<br>
-            👤 Yusuf Köse
-        </p>
+        <!-- Doktor İçin Özellikler -->
+        <div style="background: #1a2332; padding: 25px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #7c3aed;">
+            <h3 style="margin: 0 0 20px 0; color: #7c3aed; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.8em;">👨‍⚕️</span>
+                <span>{% if language == 'en' %}Advanced Tools for Doctors{% else %}Doktorlar İçin Gelişmiş Araçlar{% endif %}</span>
+            </h3>
+            <div style="display: grid; gap: 15px;">
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">🧠</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #7c3aed;">{% if language == 'en' %}AI-Powered Clinical Decision Support{% else %}AI Destekli Karar Desteği{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            Patient triage information is automatically analyzed. Risk levels, possible diseases 
+                            and recommendations are determined by AI and presented to you.
+                            {% else %}
+                            Hastanın triyaj bilgileri otomatik analiz edilir. Risk seviyesi, olası hastalıklar 
+                            ve öneriler yapay zeka tarafından belirlenerek size sunulur.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">⚠️</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #7c3aed;">{% if language == 'en' %}Smart Drug Interaction Alerts{% else %}Akıllı İlaç Etkileşim Uyarıları{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            The system automatically checks drug-drug and drug-allergy interactions while prescribing. 
+                            Potential risks are instantly reported.
+                            {% else %}
+                            Reçete yazarken sistem otomatik olarak ilaç-ilaç ve ilaç-alerji etkileşimlerini kontrol eder. 
+                            Potansiyel riskler anında bildirilir.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">📋</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #7c3aed;">{% if language == 'en' %}Efficient Patient Management{% else %}Verimli Hasta Yönetimi{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            Filter your appointments, view patient history, create and edit prescriptions. 
+                            The entire process is digitized and optimized.
+                            {% else %}
+                            Randevularınızı filtreleyin, hasta geçmişini görün, reçete oluşturun ve düzenleyin. 
+                            Tüm süreç dijitalleştirilmiş ve optimize edilmiş.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 15px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                    <div style="font-size: 2em; min-width: 50px; text-align: center;">⏱️</div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 5px; color: #7c3aed;">{% if language == 'en' %}Time Management{% else %}Zaman Yönetimi{% endif %}</strong>
+                        <span style="color: #94a3b8; font-size: 0.95em;">
+                            {% if language == 'en' %}
+                            Set your appointment slots yourself. Manage more easily by filtering 
+                            today, this week or all appointments.
+                            {% else %}
+                            Randevu slotlarınızı kendiniz belirleyin. Bugün, bu hafta veya tüm randevular 
+                            şeklinde filtreleyerek daha kolay yönetin.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions" style="margin-top: 40px; display: flex; gap: 15px; justify-content: center;">
+            <a class="btn" href="{% url 'patient_login' %}" style="display: flex; align-items: center; gap: 8px; padding: 15px 30px; font-size: 1.1em;">
+                <span>🧑‍🦽</span> {% if language == 'en' %}Patient Login{% else %}Hasta Girişi{% endif %}
+            </a>
+            <a class="btn ghost" href="{% url 'login' %}" style="display: flex; align-items: center; gap: 8px; padding: 15px 30px; font-size: 1.1em;">
+                <span>👨‍⚕️</span> {% if language == 'en' %}Doctor Login{% else %}Doktor Girişi{% endif %}
+            </a>
+        </div>
     </div>
     
     <div class="hero-card">
         <div style="background: #7c3aed; color: white; padding: 15px; border-radius: 8px 8px 0 0; margin: -20px -20px 15px -20px;">
-            <h3 style="margin: 0;">👨‍⚕️ Aktif Doktorlar</h3>
+            <h3 style="margin: 0;">👨‍⚕️ {% if language == 'en' %}Active Doctors{% else %}Aktif Doktorlar{% endif %}</h3>
         </div>
         
         <ul style="list-style: none; padding: 0; margin: 0;">
@@ -72,15 +210,19 @@
                 </li>
             {% empty %}
                 <li style="text-align: center; padding: 20px; color: #94a3b8;">
-                    Henüz doktor yok.
+                    {% if language == 'en' %}No doctors yet.{% else %}Henüz doktor yok.{% endif %}
                 </li>
             {% endfor %}
         </ul>
         
         <div style="margin-top: 20px; padding: 15px; background: #1a2332; border-radius: 6px; font-size: 0.9em;">
-            <strong style="color: #7c3aed;">⚠️ Demo Amaçlı</strong>
+            <strong style="color: #7c3aed;">⚠️ {% if language == 'en' %}For Demo Only{% else %}Demo Amaçlı{% endif %}</strong>
             <p style="margin: 5px 0 0 0; line-height: 1.6; color: #94a3b8;">
+                {% if language == 'en' %}
+                This system is for educational purposes. It should not be used for real medical decisions.
+                {% else %}
                 Bu sistem eğitim amaçlıdır. Gerçek tıbbi kararlar için kullanılmamalıdır.
+                {% endif %}
             </p>
         </div>
     </div>

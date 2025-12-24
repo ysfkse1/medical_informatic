@@ -6,12 +6,15 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import AppointmentRequestForm, PatientIntakeForm, PatientProfileForm, PrescriptionForm
-from .models import Appointment, AppointmentSlot, Doctor, Patient
+from .models import Appointment, AppointmentSlot, Doctor, Patient, Prescription
 from .utils import analyze_triage, check_drug_interactions, ensure_demo_doctors, default_schedule_time
 
 
 def home(request):
     ensure_demo_doctors()
+    
+    # Dil tercihi kontrolü - varsayılan Türkçe
+    language = request.session.get('language', 'tr')
     
     # Eğer kullanıcı giriş yapmışsa, rolüne göre yönlendir veya bilgi göster
     if request.user.is_authenticated:
@@ -24,7 +27,7 @@ def home(request):
     
     # Giriş yapmamışsa ana sayfayı göster
     doctors = Doctor.objects.all()
-    return render(request, "home.html", {"doctors": doctors})
+    return render(request, "home.html", {"doctors": doctors, "language": language})
 
 
 @login_required
@@ -154,7 +157,8 @@ def patient_intake(request):
                 "has_breathing_difficulty": patient_form.cleaned_data.get("has_breathing_difficulty") or "",
                 "previous_similar_condition": patient_form.cleaned_data.get("previous_similar_condition") or "",
             }
-            triage = analyze_triage(patient, triage_data)
+            language = request.session.get('language', 'tr')
+            triage = analyze_triage(patient, triage_data, language)
             
             # Randevuyu oluştur
             appointment = Appointment.objects.create(
@@ -242,6 +246,35 @@ def doctor_detail(request, doctor_id: int):
 
 
 @login_required
+def doctor_profile(request):
+    """Doktor profil sayfası"""
+    if not hasattr(request.user, 'doctor_profile'):
+        messages.error(request, "Bu sayfaya erişim yetkiniz yok.")
+        return redirect('home')
+    
+    doctor = request.user.doctor_profile
+    language = request.session.get('language', 'tr')
+    
+    # İstatistikler
+    from django.utils import timezone
+    today = timezone.now().date()
+    
+    total_appointments = doctor.appointments.count()
+    today_appointments = doctor.appointments.filter(scheduled_for__date=today).count()
+    completed_appointments = doctor.appointments.filter(status='completed').count()
+    total_prescriptions = doctor.prescriptions.count()
+    
+    return render(request, 'doctor_profile.html', {
+        'doctor': doctor,
+        'language': language,
+        'total_appointments': total_appointments,
+        'today_appointments': today_appointments,
+        'completed_appointments': completed_appointments,
+        'total_prescriptions': total_prescriptions,
+    })
+
+
+@login_required
 def appointment_detail(request, pk: int):
     appointment = get_object_or_404(
         Appointment.objects.select_related("patient", "doctor"), pk=pk
@@ -257,10 +290,12 @@ def appointment_detail(request, pk: int):
             prescription = form.save(commit=False)
             prescription.doctor = appointment.doctor
             prescription.appointment = appointment
+            language = request.session.get('language', 'tr')
             alert = check_drug_interactions(
                 appointment.patient,
                 prescription.medication_name,
                 [p.medication_name for p in prescriptions],
+                language,
             )
             prescription.ai_interaction_alerts = alert
             prescription.save()
@@ -281,6 +316,79 @@ def appointment_detail(request, pk: int):
     )
 
 
+@login_required
+def edit_prescription(request, pk: int):
+    prescription = get_object_or_404(Prescription.objects.select_related("appointment", "doctor"), pk=pk)
+    
+    # Yetki kontrolü
+    if prescription.doctor.user and request.user != prescription.doctor.user and not request.user.is_staff:
+        messages.error(request, "Bu reçeteyi düzenleme yetkiniz yok.")
+        return redirect("doctor_list")
+    
+    if request.method == "POST":
+        form = PrescriptionForm(request.POST, instance=prescription, doctor=prescription.doctor)
+        if form.is_valid():
+            updated_prescription = form.save(commit=False)
+            # Güncellenmiş ilaç etkileşimini kontrol et
+            other_prescriptions = prescription.appointment.prescriptions.exclude(pk=prescription.pk)
+            language = request.session.get('language', 'tr')
+            alert = check_drug_interactions(
+                prescription.appointment.patient,
+                updated_prescription.medication_name,
+                [p.medication_name for p in other_prescriptions],
+                language,
+            )
+            updated_prescription.ai_interaction_alerts = alert
+            updated_prescription.save()
+            messages.success(request, "Reçete güncellendi.")
+            return redirect("appointment_detail", pk=prescription.appointment.pk)
+    else:
+        form = PrescriptionForm(instance=prescription, doctor=prescription.doctor)
+    
+    return render(
+        request,
+        "edit_prescription.html",
+        {
+            "form": form,
+            "prescription": prescription,
+        },
+    )
+
+
+@login_required
+def delete_prescription(request, pk: int):
+    prescription = get_object_or_404(Prescription.objects.select_related("appointment", "doctor"), pk=pk)
+    
+    # Yetki kontrolü
+    if prescription.doctor.user and request.user != prescription.doctor.user and not request.user.is_staff:
+        messages.error(request, "Bu reçeteyi silme yetkiniz yok.")
+        return redirect("doctor_list")
+    
+    appointment_pk = prescription.appointment.pk
+    
+    if request.method == "POST":
+        prescription.delete()
+        messages.success(request, "Reçete silindi.")
+        return redirect("appointment_detail", pk=appointment_pk)
+    
+    return render(
+        request,
+        "delete_prescription.html",
+        {
+            "prescription": prescription,
+        },
+    )
+
+
+def change_language(request):
+    """Dil değiştirme view'ı"""
+    language = request.GET.get('lang', 'tr')
+    if language in ['tr', 'en']:
+        request.session['language'] = language
+    # Bir önceki sayfaya dön veya ana sayfaya
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
 def logout_view(request):
     logout(request)
     return redirect("home")
@@ -298,7 +406,41 @@ def patient_signup(request):
     return render(request, "patient_signup.html", {"form": form})
 
 
+def doctor_login(request):
+    """Doktor girişi - hasta hesabıyla giriş yapılamaz"""
+    language = request.session.get('language', 'tr')
+    
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'doctor_profile'):
+            return redirect('doctor_detail', doctor_id=request.user.doctor_profile.id)
+        else:
+            return redirect('home')
+    
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user:
+            # Hasta hesabı ile doktor girişi yapmasını engelle
+            if hasattr(user, 'patient_profile') and not hasattr(user, 'doctor_profile'):
+                error_msg = "This is a patient account. Please use the patient login page." if language == 'en' else "Bu hesap bir hasta hesabıdır. Lütfen hasta giriş sayfasını kullanın."
+                messages.error(request, error_msg)
+                return render(request, "registration/login.html")
+            # Doktor profili yoksa hata
+            if not hasattr(user, 'doctor_profile'):
+                error_msg = "Doctor profile not found for this account." if language == 'en' else "Bu hesap için doktor profili bulunamadı."
+                messages.error(request, error_msg)
+                return render(request, "registration/login.html")
+            login(request, user)
+            return redirect('doctor_detail', doctor_id=user.doctor_profile.id)
+        error_msg = "Invalid username or password." if language == 'en' else "Hatalı kullanıcı adı veya şifre."
+        messages.error(request, error_msg)
+    return render(request, "registration/login.html")
+
+
 def patient_login(request):
+    language = request.session.get('language', 'tr')
+    
     if request.user.is_authenticated:
         return redirect("patient_dashboard")
     if request.method == "POST":
@@ -306,9 +448,20 @@ def patient_login(request):
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user:
+            # Doktor hesabı ile hasta girişi yapmasını engelle
+            if hasattr(user, 'doctor_profile'):
+                error_msg = "This is a doctor account. Please use the doctor login page." if language == 'en' else "Bu hesap bir doktor hesabıdır. Lütfen doktor giriş sayfasını kullanın."
+                messages.error(request, error_msg)
+                return render(request, "patient_login.html")
+            # Hasta profili yoksa oluştur
+            if not hasattr(user, 'patient_profile'):
+                error_msg = "Patient profile not found for this account." if language == 'en' else "Bu hesap için hasta profili bulunamadı."
+                messages.error(request, error_msg)
+                return render(request, "patient_login.html")
             login(request, user)
             return redirect("patient_dashboard")
-        messages.error(request, "Hatalı kullanıcı adı veya şifre.")
+        error_msg = "Invalid username or password." if language == 'en' else "Hatalı kullanıcı adı veya şifre."
+        messages.error(request, error_msg)
     return render(request, "patient_login.html")
 
 

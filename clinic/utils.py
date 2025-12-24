@@ -26,8 +26,8 @@ class TriageAnalysis:
     possible_conditions: List[str]
 
 
-def analyze_triage(patient: Patient, triage_data: Dict) -> TriageAnalysis:
-    ai_result = _analyze_triage_ai(patient, triage_data)
+def analyze_triage(patient: Patient, triage_data: Dict, language: str = 'tr') -> TriageAnalysis:
+    ai_result = _analyze_triage_ai(patient, triage_data, language)
     if ai_result:
         return ai_result
 
@@ -45,7 +45,12 @@ def analyze_triage(patient: Patient, triage_data: Dict) -> TriageAnalysis:
 
     suggestions: List[str] = []
     possible_conditions: List[str] = []
-    risk_level = "Düşük"
+    
+    # Risk seviyeleri dile göre
+    risk_low = "Low" if language == 'en' else "Düşük"
+    risk_medium = "Medium" if language == 'en' else "Orta"
+    risk_high = "High" if language == 'en' else "Yüksek"
+    risk_level = risk_low
 
     # Vital bulgu analizi
     if temperature >= 38.5:
@@ -138,25 +143,50 @@ def check_drug_interactions(
     patient: Patient,
     medication_name: str,
     existing: Sequence[str],
+    language: str = 'tr',
 ) -> str:
-    ai_result = _check_drug_interactions_ai(patient, medication_name, existing)
+    ai_result = _check_drug_interactions_ai(patient, medication_name, existing, language)
     if ai_result:
         return ai_result
 
     med = medication_name.lower()
     interactions = []
+    
+    if language == 'en':
+        no_interaction_msg = "No significant interaction warning. Confirm with clinical evaluation."
+    else:
+        no_interaction_msg = "Belirgin etkileşim uyarısı yok. Klinik değerlendirme ile onaylayın."
 
     if "ibuprofen" in med or "naproksen" in med:
-        interactions.append("NSAID kullanımı böbrek fonksiyonlarını etkileyebilir; hidrasyon ve böbrek fonksiyonlarını izleyin.")
+        msg = "NSAID use may affect kidney function; monitor hydration and kidney function." if language == 'en' else "NSAID kullanımı böbrek fonksiyonlarını etkileyebilir; hidrasyon ve böbrek fonksiyonlarını izleyin."
+        interactions.append(msg)
     if "aspirin" in med and ("ibuprofen" in " ".join(existing).lower()):
-        interactions.append("Aspirin ve ibuprofen birlikte kullanımı kanama riskini artırabilir.")
+        msg = "Combined use of aspirin and ibuprofen may increase bleeding risk." if language == 'en' else "Aspirin ve ibuprofen birlikte kullanımı kanama riskini artırabilir."
+        interactions.append(msg)
     if patient.age >= 65:
-        interactions.append("65+ yaş için ilaç dozu ve yan etkilere dikkat edin.")
+        msg = "For age 65+, monitor drug dosage and side effects." if language == 'en' else "65+ yaş için ilaç dozu ve yan etkilere dikkat edin."
+        interactions.append(msg)
+    
+    # Alerji kontrolü - sadece gerçek etkileşim varsa uyar
     if patient.allergies:
-        interactions.append(f"Bilinen alerjiler: {patient.allergies}; ilaç içeriğini doğrulayın.")
+        allergies_lower = patient.allergies.lower()
+        # Penisilin alerjisi kontrolü
+        if "penisilin" in allergies_lower or "penicillin" in allergies_lower:
+            if any(x in med for x in ["penisilin", "penicillin", "amoksisilin", "ampisilin"]):
+                msg = "⚠️ WARNING: Penicillin allergy present! Do not use this medication." if language == 'en' else "⚠️ DİKKAT: Penisilin alerjisi mevcut! Bu ilacı kullanmayın."
+                interactions.append(msg)
+        # Fıstık alerjisi kontrolü
+        if "fıstık" in allergies_lower or "peanut" in allergies_lower:
+            if "fıstık" in med or "peanut" in med:
+                msg = "⚠️ WARNING: Peanut allergy present! Check medication ingredients." if language == 'en' else "⚠️ DİKKAT: Fıstık alerjisi mevcut! İlaç içeriğini kontrol edin."
+                interactions.append(msg)
+        # Aspirin alerjisi
+        if "aspirin" in allergies_lower and "aspirin" in med:
+            msg = "⚠️ WARNING: Aspirin allergy present!" if language == 'en' else "⚠️ DİKKAT: Aspirin alerjisi mevcut!"
+            interactions.append(msg)
 
     if not interactions:
-        return "Belirgin etkileşim uyarısı yok. Klinik değerlendirme ile onaylayın."
+        return no_interaction_msg
 
     return " | ".join(interactions)
 
@@ -273,26 +303,42 @@ def _get_openai_client():
     return OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
-def _analyze_triage_ai(patient: Patient, triage_data: Dict) -> TriageAnalysis | None:
+def _analyze_triage_ai(patient: Patient, triage_data: Dict, language: str = 'tr') -> TriageAnalysis | None:
     client = _get_openai_client()
     if not client:
         return None
 
-    prompt = (
-        "Hasta triayj verilerini kullanarak kısa klinik özet, risk seviyesi "
-        "(Düşük/Orta/Yüksek), 2-4 öneri ve olası durumlar üret. "
-        "JSON olarak cevap ver: {\"summary\":..., \"risk_level\":..., \"suggestions\":[], \"possible_conditions\":[]}.\n\n"
-        f"Hasta: {patient.full_name}, yaş {patient.age}, cinsiyet {patient.gender}, "
-        f"kilo {patient.weight_kg}kg, boy {patient.height_cm}cm. "
-        f"Şikayet: {patient.primary_complaint}. Alerjiler: {patient.allergies or 'bilinmiyor'}.\n"
-        f"Triyaj: ateş {triage_data.get('temperature')}, nabız {triage_data.get('heart_rate')}, "
-        f"ağrı {triage_data.get('pain_level')}/10, ek semptomlar: {triage_data.get('symptoms_detail') or '-'}."
-    )
+    if language == 'en':
+        prompt = (
+            "Analyze patient triage data and generate a brief clinical summary, risk level "
+            "(Low/Medium/High), 2-4 recommendations and possible conditions. "
+            "Respond in JSON: {\"summary\":..., \"risk_level\":..., \"suggestions\":[], \"possible_conditions\":[]}. "
+            "IMPORTANT: All text must be in English.\n\n"
+            f"Patient: {patient.full_name}, age {patient.age}, gender {patient.gender}, "
+            f"weight {patient.weight_kg}kg, height {patient.height_cm}cm. "
+            f"Complaint: {patient.primary_complaint}. Allergies: {patient.allergies or 'unknown'}.\n"
+            f"Triage: temp {triage_data.get('temperature')}, heart rate {triage_data.get('heart_rate')}, "
+            f"pain {triage_data.get('pain_level')}/10, additional symptoms: {triage_data.get('symptoms_detail') or 'none'}."
+        )
+        system_msg = "You are a clinical decision support assistant. Output in JSON."
+    else:
+        prompt = (
+            "Hasta triayj verilerini kullanarak kısa klinik özet, risk seviyesi "
+            "(Düşük/Orta/Yüksek), 2-4 öneri ve olası durumlar üret. "
+            "JSON olarak cevap ver: {\"summary\":..., \"risk_level\":..., \"suggestions\":[], \"possible_conditions\":[]}.\n\n"
+            f"Hasta: {patient.full_name}, yaş {patient.age}, cinsiyet {patient.gender}, "
+            f"kilo {patient.weight_kg}kg, boy {patient.height_cm}cm. "
+            f"Şikayet: {patient.primary_complaint}. Alerjiler: {patient.allergies or 'bilinmiyor'}.\n"
+            f"Triyaj: ateş {triage_data.get('temperature')}, nabız {triage_data.get('heart_rate')}, "
+            f"ağrı {triage_data.get('pain_level')}/10, ek semptomlar: {triage_data.get('symptoms_detail') or '-'}."
+        )
+        system_msg = "Klinik karar desteği asistanısın. JSON çıktısı ver."
+    
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Klinik karar desteği asistanısın. JSON çıktısı ver."},
+                {"role": "system", "content": system_msg},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.2,
@@ -302,7 +348,7 @@ def _analyze_triage_ai(patient: Patient, triage_data: Dict) -> TriageAnalysis | 
         data = json.loads(content)
         return TriageAnalysis(
             summary=data.get("summary", ""),
-            risk_level=data.get("risk_level", "Düşük"),
+            risk_level=data.get("risk_level", "Low" if language == 'en' else "Düşük"),
             suggestions=list(data.get("suggestions") or []),
             possible_conditions=list(data.get("possible_conditions") or []),
         )
@@ -310,22 +356,38 @@ def _analyze_triage_ai(patient: Patient, triage_data: Dict) -> TriageAnalysis | 
         return None
 
 
-def _check_drug_interactions_ai(patient: Patient, medication_name: str, existing: Sequence[str]) -> str | None:
+def _check_drug_interactions_ai(patient: Patient, medication_name: str, existing: Sequence[str], language: str = 'tr') -> str | None:
     client = _get_openai_client()
     if not client:
         return None
-    existing_list = ", ".join(existing) if existing else "yok"
-    prompt = (
-        "İlaç etkileşimi ve uyarılarını 1-2 cümleyle yaz. Yalnızca klinik uyarı ver.\n"
-        f"Hasta: yaş {patient.age}, cinsiyet {patient.gender}, kilo {patient.weight_kg}kg, "
-        f"alerjiler: {patient.allergies or 'bilinmiyor'}.\n"
-        f"Yeni ilaç: {medication_name}. Mevcut ilaçlar: {existing_list}."
-    )
+    existing_list = ", ".join(existing) if existing else ("none" if language == 'en' else "yok")
+    
+    if language == 'en':
+        prompt = (
+            "Analyze drug interactions. ONLY warn if there is a real interaction, risk or allergy conflict.\n"
+            "If the drug is safe and no interaction exists, say 'No significant interaction'.\n"
+            f"Patient: age {patient.age}, gender {patient.gender}, weight {patient.weight_kg}kg, "
+            f"allergies: {patient.allergies or 'none'}.\n"
+            f"New medication: {medication_name}. Existing medications: {existing_list}.\n"
+            "Example: B12 vitamin does not contain penicillin, so it's safe for someone with penicillin allergy."
+        )
+        system_msg = "Give brief clinical warning; cautious tone, 2 sentences max."
+    else:
+        prompt = (
+            "İlaç etkileşimi analizi yap. SADECE gerçek bir etkileşim, risk veya alerji uyuşmazlığı varsa uyarı ver.\n"
+            "Eğer ilaç güvenli ve etkileşim yoksa 'Belirgin etkileşim yok' de.\n"
+            f"Hasta: yaş {patient.age}, cinsiyet {patient.gender}, kilo {patient.weight_kg}kg, "
+            f"alerjiler: {patient.allergies or 'yok'}.\n"
+            f"Yeni ilaç: {medication_name}. Mevcut ilaçlar: {existing_list}.\n"
+            "Örnek: B12 vitamini penisilin içermez, dolayısıyla penisilin alerjisi olan biri için sorun olmaz."
+        )
+        system_msg = "Kısa klinik uyarı ver; koruyucu ton, 2 cümle."
+    
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Kısa klinik uyarı ver; koruyucu ton, 2 cümle."},
+                {"role": "system", "content": system_msg},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.1,

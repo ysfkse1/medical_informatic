@@ -21,7 +21,7 @@ from clinic import views as clinic_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(template_name="registration/login.html"), name='login'),
+    path('login/', clinic_views.doctor_login, name='login'),
     path('logout/', clinic_views.logout_view, name='logout'),
     path('', include('clinic.urls')),
 ]

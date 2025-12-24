@@ -29,12 +29,22 @@
     <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
-        {% for field in form %}
-            <label>{{ field.label }}{% if field.field.required %}*{% endif %} {{ field }}
-                {% for error in field.errors %}<span class="error">{{ error }}</span>{% endfor %}
-            </label>
-        {% endfor %}
-        <button class="btn" type="submit">Kaydet</button>
+        <label>
+            {% if language == 'en' %}Medication Name{% else %}İlaç Adı{% endif %}*
+            {{ form.medication_name }}
+            {% for error in form.medication_name.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </label>
+        <label>
+            {% if language == 'en' %}Dosage{% else %}Doz{% endif %}*
+            {{ form.dosage }}
+            {% for error in form.dosage.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </label>
+        <label>
+            {% if language == 'en' %}Instructions{% else %}Kullanım Talimatı{% endif %}
+            {{ form.instructions }}
+            {% for error in form.instructions.errors %}<span class="error">{{ error }}</span>{% endfor %}
+        </label>
+        <button class="btn" type="submit">{% if language == 'en' %}Save{% else %}Kaydet{% endif %}</button>
     </form>
 </div>
 
@@ -42,10 +52,18 @@
     <h3>Reçeteler</h3>
     <div class="list">
         {% for rx in prescriptions %}
-            <div class="rx">
-                <strong>{{ rx.medication_name }}</strong> — {{ rx.dosage }}<br>
-                <small>{{ rx.instructions }}</small>
-                <p class="alert">AI Etkileşim Notu: {{ rx.ai_interaction_alerts|default:"-" }}</p>
+            <div class="rx" style="position: relative; padding: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <strong>{{ rx.medication_name }}</strong> — {{ rx.dosage }}<br>
+                        <small>{{ rx.instructions }}</small>
+                        <p class="alert">AI Etkileşim Notu: {{ rx.ai_interaction_alerts|default:"-" }}</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-left: 15px;">
+                        <a href="{% url 'edit_prescription' rx.pk %}" class="btn small" style="padding: 5px 10px; font-size: 0.85em;">✏️ Düzenle</a>
+                        <a href="{% url 'delete_prescription' rx.pk %}" class="btn small" style="padding: 5px 10px; font-size: 0.85em; background: #e74c3c;">🗑️ Sil</a>
+                    </div>
+                </div>
             </div>
         {% empty %}
             <p>Reçete eklenmedi.</p>

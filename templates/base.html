@@ -4,33 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MedAI Klinik{% endblock %}</title>
+    <title>{% block title %}MedAI {% if language == 'en' %}Clinic{% else %}Klinik{% endif %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
 <header class="topbar">
-    <div class="brand">MedAI Klinik</div>
+    <div class="brand">MedAI {% if language == 'en' %}Clinic{% else %}Klinik{% endif %}</div>
     <nav>
-        <a href="{% url 'home' %}">Ana Sayfa</a>
+        <a href="{% url 'home' %}">{% if language == 'en' %}Home{% else %}Ana Sayfa{% endif %}</a>
         
         {% if user.is_authenticated %}
             {# Doktor ise doktor paneli göster #}
             {% if user.doctor_profile %}
-                <a href="{% url 'doctor_list' %}">Doktor</a>
+                <a href="{% url 'doctor_profile' %}">{% if language == 'en' %}Profile{% else %}Profil{% endif %}</a>
+                <a href="{% url 'doctor_list' %}">{% if language == 'en' %}Appointments{% else %}Randevular{% endif %}</a>
             {# Hasta ise hasta paneli göster #}
             {% elif user.patient_profile %}
-                <a href="{% url 'patient_dashboard' %}">Hasta</a>
+                <a href="{% url 'patient_profile' %}">{% if language == 'en' %}Profile{% else %}Profil{% endif %}</a>
+                <a href="{% url 'patient_dashboard' %}">{% if language == 'en' %}Appointments{% else %}Randevular{% endif %}</a>
             {# Admin veya başka rol ise her ikisini de göster #}
             {% else %}
-                <a href="{% url 'patient_dashboard' %}">Hasta</a>
-                <a href="{% url 'doctor_list' %}">Doktor</a>
+                <a href="{% url 'patient_dashboard' %}">{% if language == 'en' %}Patient{% else %}Hasta{% endif %}</a>
+                <a href="{% url 'doctor_list' %}">{% if language == 'en' %}Doctor{% else %}Doktor{% endif %}</a>
             {% endif %}
             
-            <span class="user-pill">Giriş: {{ user.username }}</span>
-            <a href="{% url 'logout' %}">Çıkış</a>
+            <span class="user-pill">{% if language == 'en' %}Logged in{% else %}Giriş{% endif %}: {{ user.username }}</span>
+            <a href="{% url 'logout' %}">{% if language == 'en' %}Logout{% else %}Çıkış{% endif %}</a>
         {% else %}
-            <a href="{% url 'patient_login' %}">Hasta Girişi</a>
-            <a href="{% url 'login' %}">Doktor Girişi</a>
+            <a href="{% url 'patient_login' %}">{% if language == 'en' %}Patient Login{% else %}Hasta Girişi{% endif %}</a>
+            <a href="{% url 'login' %}">{% if language == 'en' %}Doctor Login{% else %}Doktor Girişi{% endif %}</a>
         {% endif %}
     </nav>
 </header>
@@ -45,7 +47,11 @@
     {% block content %}{% endblock %}
 </main>
 <footer class="footer">
+    {% if language == 'en' %}
+    AI-powered clinical decision support demo | Clinical approval required for medical decisions.
+    {% else %}
     AI destekli karar desteği demo | Tıbbi kararlar için klinik onay gerektirir.
+    {% endif %}
 </footer>
 </body>
 </html>

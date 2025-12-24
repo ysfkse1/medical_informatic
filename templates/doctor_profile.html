@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{% if language == 'en' %}Doctor Profile{% else %}Doktor Profili{% endif %}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>{% if language == 'en' %}My Profile{% else %}Profilim{% endif %}</h2>
+</div>
+
+<div class="card">
+    <div style="display: flex; align-items: start; gap: 20px;">
+        <div style="font-size: 4em;">👨‍⚕️</div>
+        <div style="flex: 1;">
+            <h2 style="margin: 0 0 10px 0;">{{ doctor.full_name }}</h2>
+            <p style="font-size: 1.2em; color: #7c3aed; margin: 0 0 15px 0;">
+                {% if language == 'en' %}
+                    {% if doctor.specialty == 'Dahiliye' %}Internal Medicine
+                    {% elif doctor.specialty == 'Kardiyoloji' %}Cardiology
+                    {% elif doctor.specialty == 'Acil Tıp' %}Emergency Medicine
+                    {% elif doctor.specialty == 'Pediatri' %}Pediatrics
+                    {% elif doctor.specialty == 'Ortopedi' %}Orthopedics
+                    {% else %}{{ doctor.specialty }}{% endif %}
+                {% else %}
+                    {{ doctor.specialty }}
+                {% endif %}
+            </p>
+            {% if doctor.email %}
+                <p style="color: #94a3b8;">📧 {{ doctor.email }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>{% if language == 'en' %}Work Schedule{% else %}Çalışma Saatleri{% endif %}</h3>
+    <div style="display: grid; gap: 10px;">
+        <p><strong>{% if language == 'en' %}Work Hours{% else %}Çalışma Saatleri{% endif %}:</strong> {{ doctor.work_start_time|date:"H:i" }} - {{ doctor.work_end_time|date:"H:i" }}</p>
+        <p><strong>{% if language == 'en' %}Appointment Duration{% else %}Randevu Süresi{% endif %}:</strong> {{ doctor.slot_duration_minutes }} {% if language == 'en' %}minutes{% else %}dakika{% endif %}</p>
+    </div>
+</div>
+
+<div class="card">
+    <h3>{% if language == 'en' %}Statistics{% else %}İstatistikler{% endif %}</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div style="background: rgba(124, 58, 237, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #7c3aed;">
+            <div style="font-size: 2em; font-weight: bold; color: #7c3aed;">{{ total_appointments }}</div>
+            <div style="color: #94a3b8; margin-top: 5px;">{% if language == 'en' %}Total Appointments{% else %}Toplam Randevu{% endif %}</div>
+        </div>
+        <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+            <div style="font-size: 2em; font-weight: bold; color: #10b981;">{{ today_appointments }}</div>
+            <div style="color: #94a3b8; margin-top: 5px;">{% if language == 'en' %}Today's Appointments{% else %}Bugünkü Randevular{% endif %}</div>
+        </div>
+        <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #3498db;">
+            <div style="font-size: 2em; font-weight: bold; color: #3498db;">{{ completed_appointments }}</div>
+            <div style="color: #94a3b8; margin-top: 5px;">{% if language == 'en' %}Completed{% else %}Tamamlanan{% endif %}</div>
+        </div>
+        <div style="background: rgba(241, 196, 15, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #f1c40f;">
+            <div style="font-size: 2em; font-weight: bold; color: #f1c40f;">{{ total_prescriptions }}</div>
+            <div style="color: #94a3b8; margin-top: 5px;">{% if language == 'en' %}Prescriptions Written{% else %}Yazılan Reçeteler{% endif %}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>{% if language == 'en' %}Quick Actions{% else %}Hızlı Erişim{% endif %}</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'doctor_detail' doctor.id %}" class="btn">
+            📋 {% if language == 'en' %}View Appointments{% else %}Randevularımı Gör{% endif %}
+        </a>
+        <a href="{% url 'doctor_manage_slots' %}" class="btn ghost">
+            🕐 {% if language == 'en' %}Manage Slots{% else %}Slot Yönetimi{% endif %}
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,670 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{
+    \textbf{AI-Powered Smart Hospital Management System} \\
+    \large Medical Informatics Course Project \\
+    \vspace{0.5cm}
+    \normalsize Instructor: Burak Arslan
+}
+\author{Yusuf Köse - 21401935 \\ Azat Dündar - 21401947}
+
+\date{December 24, 2025}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Abstract}
+This report presents a detailed technical and functional description of the \textbf{AI-Powered Smart Hospital Management and Clinical Decision Support System} developed as part of the Medical Informatics course. Unlike traditional hospital information systems that primarily focus on administrative tasks and data storage, this system demonstrates the transformative potential of modern health informatics by integrating cutting-edge artificial intelligence technologies into clinical workflows.
+
+The system addresses critical challenges in healthcare delivery by implementing AI-assisted triage that evaluates patient conditions before appointments, providing physicians with data-driven clinical decision support during consultations, and automatically analyzing potential drug interactions during prescription writing. Built on Django 6.0 framework and powered by OpenAI's GPT-4o-mini model, the platform encompasses comprehensive features including role-based authentication, dynamic appointment scheduling, real-time risk assessment, and bilingual interface support.
+
+This project not only serves as a practical demonstration of medical informatics principles but also highlights how artificial intelligence can enhance patient safety, reduce physician cognitive load, and improve overall healthcare quality through intelligent automation and decision support systems.
+
+\section{Introduction}
+
+\subsection{Project Motivation}
+Traditional hospital information systems typically only perform record keeping, appointment management, and basic data storage functions, operating as passive repositories of medical information without actively contributing to clinical decision-making processes. These legacy systems often create administrative burden rather than reducing it, requiring physicians to manually review patient histories, cross-reference drug interactions, and assess risk levels without intelligent assistance.
+
+The healthcare industry faces several critical challenges that traditional systems fail to address:
+\begin{itemize}
+    \item \textbf{Information Overload:} Physicians must process vast amounts of patient data within limited consultation times, leading to potential oversights and diagnostic errors.
+    \item \textbf{Medication Safety:} Manual drug interaction checking is time-consuming and prone to human error, with adverse drug events representing a significant cause of preventable patient harm.
+    \item \textbf{Inconsistent Triage:} Patient prioritization often relies solely on subjective assessment, leading to variability in care delivery and potential delays for high-risk patients.
+    \item \textbf{Knowledge Gaps:} Even experienced physicians cannot retain encyclopedic medical knowledge, particularly regarding rare drug interactions or emerging clinical guidelines.
+\end{itemize}
+
+In this project, we developed an intelligent system that transforms healthcare delivery by actively participating in clinical workflows. By leveraging artificial intelligence and modern web technologies, our platform optimizes patient care processes, provides real-time decision support to physicians, and enhances patient safety through automated risk assessment and interaction analysis. This represents a paradigm shift from passive record-keeping to active clinical partnership, exemplifying the core principles of \textbf{Medical Informatics} as a discipline dedicated to improving healthcare through intelligent information management.
+
+\subsection{Project Objectives}
+\begin{itemize}[leftmargin=2cm]
+    \item Strengthen digital interaction between patients and physicians
+    \item Implement \textbf{AI-assisted triage} before appointments
+    \item Provide \textbf{clinical decision support} to physicians
+    \item Perform \textbf{drug interaction analysis} during prescription writing
+    \item Demonstrate the decision-supporting role of artificial intelligence in health informatics
+    \item Create a scalable architecture with modern web technologies
+\end{itemize}
+
+\subsection{Differences from Traditional Systems}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|p{5cm}|p{5cm}|}
+\hline
+\textbf{Traditional Systems} & \textbf{This Project} \\
+\hline
+Simple appointment recording & AI-assisted triage with risk analysis \\
+\hline
+Manual recording and form filling & Structured data collection \\
+\hline
+Physician intuition-based decisions & AI-assisted clinical recommendations \\
+\hline
+Manual drug checking & Automatic drug interaction analysis \\
+\hline
+Static patient records & Dynamic risk assessment \\
+\hline
+Single language support & Bilingual (TR/EN) infrastructure \\
+\hline
+\end{tabular}
+\caption{Differences between traditional systems and the developed system}
+\end{table}
+
+\section{System Architecture}
+
+\subsection{Technology Stack}
+\begin{itemize}
+    \item \textbf{Backend Framework:} Django 6.0 (Python 3.12.4)
+    \item \textbf{Database:} SQLite (for development environment)
+    \item \textbf{AI/ML Services:} OpenAI GPT-4o-mini API
+    \item \textbf{Frontend:} Django Templates, HTML5, CSS3
+    \item \textbf{Security:} Django Authentication System
+    \item \textbf{Language Support:} Session-based TR/EN bilingual system
+\end{itemize}
+
+\subsection{Project Structure}
+The project was developed using modular Django architecture:
+
+\begin{lstlisting}[language=bash, caption=Project directory structure]
+medical_informatics_proje/
+├── clinic/                 # Main application module
+│   ├── models.py          # Data models
+│   ├── views.py           # Business logic and views
+│   ├── forms.py           # Form definitions
+│   ├── utils.py           # AI integration and helper functions
+│   ├── urls.py            # URL routing
+│   └── migrations/        # Database migration files
+├── templates/             # HTML templates
+│   ├── base.html          # Base template
+│   ├── home.html          # Landing page
+│   ├── patient_*.html     # Patient interfaces
+│   └── doctor_*.html      # Doctor interfaces
+├── static/                # CSS and static files
+├── medsys/                # Django project settings
+└── db.sqlite3             # Database file
+\end{lstlisting}
+
+\subsection{Database Models}
+The system includes the following main entity models:
+
+\begin{enumerate}
+    \item \textbf{Patient:} Demographic information, allergies, complaints
+    \item \textbf{Doctor:} Specialty, working hours, slot settings
+    \item \textbf{Appointment:} Triage data, AI analysis results, risk level
+    \item \textbf{Prescription:} Medication information, dosage, AI interaction warnings
+    \item \textbf{AppointmentSlot:} Doctor availability status
+\end{enumerate}
+
+\section{System Features}
+
+\subsection{User Roles and Authorization}
+
+\subsubsection{Patient User}
+\textbf{Registration and Login:}
+\begin{itemize}
+    \item Dedicated patient login system (\texttt{/patient/login/})
+    \item Doctor account login blocked for patients
+    \item New patient registration creation
+\end{itemize}
+
+\textbf{Profile Management:}
+\begin{itemize}
+    \item Personal information (name, age, gender, weight, height)
+    \item Chronic diseases and complaints
+    \item Allergy information
+\end{itemize}
+
+\textbf{Appointment Process:}
+\begin{itemize}
+    \item Doctor selection and available slot viewing
+    \item \textbf{AI-assisted triage form} completion
+    \item Appointment confirmation and tracking
+    \item Viewing past appointments and prescriptions
+\end{itemize}
+
+\subsubsection{Doctor User}
+\textbf{Login and Security:}
+\begin{itemize}
+    \item Separate doctor login system (\texttt{/login/})
+    \item Patient account login blocked for doctors
+    \item Profile management and statistics
+\end{itemize}
+
+\textbf{Appointment Management:}
+\begin{itemize}
+    \item Daily, weekly, and all appointments filtering
+    \item Viewing patient triage results
+    \item Reviewing AI recommendations
+    \item Risk level assessment
+\end{itemize}
+
+\textbf{Prescription Writing:}
+\begin{itemize}
+    \item Digital prescription creation
+    \item Automatic drug interaction checking
+    \item Prescription editing and deletion
+    \item Allergy warning system
+\end{itemize}
+
+\textbf{Slot Management:}
+\begin{itemize}
+    \item Setting working hours
+    \item Bulk appointment slot creation
+    \item Availability status updates
+\end{itemize}
+
+\subsection{AI-Assisted Triage System}
+
+\subsubsection{Data Collection Process}
+The following information is collected from patients before appointments:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Field} & \textbf{Description} \\
+\hline
+Chief Complaint & Patient's reason for visit (text) \\
+\hline
+Duration & Few hours / 1-3 days / 1 week / 1-4 weeks / 1+ month \\
+\hline
+Pain Level & Scale from 0-10 \\
+\hline
+Body Temperature & In degrees (°C) \\
+\hline
+Heart Rate & Beats per minute \\
+\hline
+Shortness of Breath & None / Mild / Moderate / Severe \\
+\hline
+Previous Status & First time / Experienced before / Chronic \\
+\hline
+Additional Symptoms & Free text description \\
+\hline
+\end{tabular}
+\caption{Triage data fields}
+\end{table}
+
+\subsubsection{AI Analysis Process}
+The collected data is sent to the \textbf{OpenAI GPT-4o-mini} model for analysis:
+
+\begin{lstlisting}[language=Python, caption=AI Triage Analysis]
+def analyze_triage(patient, triage_data, language='en'):
+    # Triage analysis with OpenAI API
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    
+    prompt = f"""
+    Patient: {patient.full_name}, Age: {patient.age}
+    Complaint: {patient.primary_complaint}
+    Vital Signs: Temperature {triage_data['temperature']}°C, 
+                Heart Rate {triage_data['heart_rate']}, 
+                Pain {triage_data['pain_level']}/10
+    
+    Generate risk level (Low/Medium/High), 
+    possible conditions and recommendations.
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2
+    )
+    
+    return TriageAnalysis(
+        summary=...,
+        risk_level=...,
+        suggestions=[...],
+        possible_conditions=[...]
+    )
+\end{lstlisting}
+
+\subsubsection{AI Outputs}
+\begin{enumerate}
+    \item \textbf{Risk Level:} Low / Medium / High
+    \item \textbf{Summary Report:} Brief description of patient condition
+    \item \textbf{Clinical Recommendations:} Structured recommendations for physician
+    \item \textbf{Possible Conditions:} Potential diseases identified by AI
+\end{enumerate}
+
+\textbf{Important Note:} AI does not diagnose, only provides decision support. The final decision always belongs to the physician.
+
+\subsection{Drug Interaction Analysis}
+
+\subsubsection{Control Mechanisms}
+The system automatically performs the following checks when a physician writes a prescription:
+
+\begin{enumerate}
+    \item \textbf{Drug-Drug Interactions}
+    \begin{itemize}
+        \item Comparison of current drugs with new drug
+        \item Known interaction database checking
+        \item AI-based interaction prediction
+    \end{itemize}
+    
+    \item \textbf{Drug-Allergy Control}
+    \begin{itemize}
+        \item Penicillin allergy checking
+        \item Aspirin and other NSAID allergies
+        \item Patient allergy history comparison
+    \end{itemize}
+    
+    \item \textbf{Patient Factors}
+    \begin{itemize}
+        \item Age-based checks (warnings for 65+)
+        \item Weight-dose compatibility
+        \item Chronic disease interactions
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{AI Interaction Analysis}
+\begin{lstlisting}[language=Python, caption=Drug Interaction Check]
+def check_drug_interactions(patient, medication, existing, language='en'):
+    # Drug interaction analysis with AI
+    prompt = f"""
+    ONLY warn if there is a real interaction, risk, 
+    or allergy incompatibility.
+    
+    Patient: Age {patient.age}, Allergies: {patient.allergies}
+    New drug: {medication}
+    Current drugs: {existing}
+    
+    Example: B12 vitamin does not contain penicillin, 
+    no problem for penicillin allergy.
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1
+    )
+    
+    return response.choices[0].message.content
+\end{lstlisting}
+
+\subsubsection{Warning System}
+\begin{itemize}
+    \item \textcolor{red}{\textbf{Critical Warnings:}} Absolute contraindications (e.g., penicillin allergy + amoxicillin)
+    \item \textcolor{orange}{\textbf{Caution Warnings:}} Potential risks (e.g., Aspirin + Ibuprofen)
+    \item \textcolor{blue}{\textbf{Information Notes:}} Age, weight-based recommendations
+\end{itemize}
+
+\subsection{Appointment Management}
+
+\subsubsection{Slot System}
+Doctors can create their own work schedules:
+\begin{itemize}
+    \item Working hours: Start - End (e.g., 09:00-17:00)
+    \item Slot duration: 15, 30, 45, or 60 minutes
+    \item Bulk slot creation (e.g., open all slots for 1 month)
+    \item Automatic past slot closure
+\end{itemize}
+
+\subsubsection{Appointment Process}
+\begin{enumerate}
+    \item Patient selects a doctor
+    \item Available slots are displayed (in Turkey time)
+    \item Triage form is completed
+    \item AI analysis runs automatically
+    \item Appointment is confirmed and doctor is notified
+\end{enumerate}
+
+\section{Technical Details}
+
+\subsection{Security and Privacy}
+
+\subsubsection{Authentication}
+\begin{itemize}
+    \item Django built-in authentication system
+    \item Encrypted password storage (PBKDF2 algorithm)
+    \item Session-based session management
+    \item Role-based access control (patient/doctor separation)
+\end{itemize}
+
+\subsubsection{Data Security}
+\begin{itemize}
+    \item CSRF token protection in all forms
+    \item SQL injection protection (Django ORM)
+    \item XSS protection (Django template auto-escaping)
+    \item Sensitive API keys in .env file
+\end{itemize}
+
+\subsection{Performance Optimizations}
+
+\begin{itemize}
+    \item N+1 query problem solution with \texttt{select\_related()}
+    \item Database indexing (unique\_together, ordering)
+    \item AI API timeout management
+    \item Automatic cleanup of past slots
+\end{itemize}
+
+\subsection{Bilingual Infrastructure}
+
+The system is designed with bilingual (TR/EN) infrastructure for future international use:
+
+\begin{lstlisting}[language=Python, caption=Language Management]
+# Language preference stored in session
+request.session['language'] = 'en'  # or 'tr'
+
+# Conditional translation in templates
+{% if language == 'en' %}
+    Patient Panel
+{% else %}
+    Hasta Paneli
+{% endif %}
+
+# AI prompts accept language parameter
+analyze_triage(patient, triage_data, language='en')
+\end{lstlisting}
+
+\section{User Interface}
+
+\subsection{Design Principles}
+\begin{itemize}
+    \item \textbf{Responsive Design:} Mobile and desktop compatible
+    \item \textbf{Dark Theme:} Modern, eye-friendly interface
+    \item \textbf{Gradient Accents:} Purple-blue color palette
+    \item \textbf{Icon Usage:} Emoji-based visual communication
+    \item \textbf{Card-Based Layout:} Modular content organization
+\end{itemize}
+
+\subsection{Main Pages}
+
+\subsubsection{Landing Page}
+\begin{itemize}
+    \item Introduction to system features
+    \item Highlighting AI-powered features
+    \item Separate login buttons for patients and doctors
+    \item Active doctor list
+    \item Demo warning
+\end{itemize}
+
+\subsubsection{Patient Dashboard}
+\begin{itemize}
+    \item Profile summary (age, gender, complaint)
+    \item Appointment list (date, doctor, risk level)
+    \item Prescriptions linked to appointments
+    \item Drug interaction warnings
+    \item New appointment button
+\end{itemize}
+
+\subsubsection{Doctor Dashboard}
+\begin{itemize}
+    \item Appointment filtering (today, this week, all)
+    \item Patient triage summaries
+    \item AI risk assessments
+    \item Clinical recommendations and warnings
+    \item Detailed appointment view
+\end{itemize}
+
+\subsubsection{Appointment Detail Page}
+\begin{itemize}
+    \item Patient demographic information
+    \item Triage data (vital signs, symptoms)
+    \item AI analysis results
+    \item Prescription writing form
+    \item Existing prescriptions and edit buttons
+\end{itemize}
+
+\section{Code Analysis and Statistics}
+
+\subsection{Project Scale}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|r|}
+\hline
+\textbf{File Type} & \textbf{Lines of Code} \\
+\hline
+Python (Backend) & $\sim$2,500 lines \\
+HTML Templates & $\sim$1,800 lines \\
+CSS & $\sim$300 lines \\
+\hline
+\textbf{Total} & \textbf{$\sim$4,600 lines} \\
+\hline
+\end{tabular}
+\caption{Code line statistics}
+\end{table}
+
+\subsection{Core Modules}
+\begin{enumerate}
+    \item \textbf{models.py (130 lines):} Data models and relationships
+    \item \textbf{views.py (549 lines):} Business logic and view functions
+    \item \textbf{utils.py (390 lines):} AI integration and helper functions
+    \item \textbf{forms.py (200 lines):} Form definitions and validations
+\end{enumerate}
+
+\section{Testing and Demo}
+
+\subsection{Demo Users}
+The system includes demo users for testing purposes:
+
+\textbf{Doctors:}
+\begin{itemize}
+    \item \texttt{ayse / doktor123} - Internal Medicine
+    \item \texttt{mehmet / doktor123} - Cardiology
+    \item \texttt{selin / doktor123} - Emergency Medicine
+\end{itemize}
+
+\textbf{Patients:}
+\begin{itemize}
+    \item \texttt{test\_hasta / hasta123}
+    \item \texttt{aylin\_hasta / hasta123}
+\end{itemize}
+
+\subsection{Test Scenarios}
+\begin{enumerate}
+    \item \textbf{Patient Flow:}
+    \begin{itemize}
+        \item Register
+        \item Create profile
+        \item Select doctor
+        \item Complete triage form
+        \item Book appointment
+        \item View prescriptions
+    \end{itemize}
+    
+    \item \textbf{Doctor Flow:}
+    \begin{itemize}
+        \item Login
+        \item Filter appointments
+        \item Review triage results
+        \item Write prescription
+        \item View drug interaction warnings
+        \item Manage slots
+    \end{itemize}
+    
+    \item \textbf{AI Testing:}
+    \begin{itemize}
+        \item High fever + severe pain → High risk
+        \item Chronic complaint → Detailed examination recommendation
+        \item Drug allergy + same drug class → Critical warning
+    \end{itemize}
+\end{enumerate}
+
+\section{Results and Evaluation}
+
+\subsection{Project Achievements}
+\begin{enumerate}
+    \item \textbf{AI Integration:} Successful clinical decision support with OpenAI API
+    \item \textbf{User Experience:} Modern, user-friendly interface
+    \item \textbf{Security:} Role-based access and data protection
+    \item \textbf{Scalability:} Modular architecture and clean code
+    \item \textbf{Bilingual Infrastructure:} International usage potential
+\end{enumerate}
+
+\subsection{Future Developments}
+\begin{itemize}
+    \item Enterprise database such as PostgreSQL or MySQL
+    \item REST API and mobile application integration
+    \item More advanced AI models (fine-tuning)
+    \item Electronic Health Records (EHR) integration
+    \item Telemedicine features
+    \item Laboratory results module
+    \item Radiology image analysis
+\end{itemize}
+
+\subsection{Academic Contribution}
+Within the scope of the Medical Informatics course, this project:
+\begin{itemize}
+    \item Practically demonstrated the role of artificial intelligence in clinical decision support
+    \item Implemented drug interaction systems that enhance patient safety
+    \item Showed the integration of modern web technologies with health informatics
+    \item Served as an example for digitalization of triage systems
+\end{itemize}
+
+\section{References}
+
+\begin{enumerate}
+    \item Django Documentation. (2025). \textit{Django Web Framework}. \url{https://docs.djangoproject.com/}
+    \item OpenAI. (2025). \textit{GPT-4 API Documentation}. \url{https://platform.openai.com/docs}
+    \item Medical Informatics Course Notes. (2025). Galatasaray University.
+\end{enumerate}
+
+\section{Appendices}
+
+\subsection{A - System Installation}
+\begin{lstlisting}[language=bash, caption=Installation commands]
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install django openai anthropic pytz
+
+# Create database
+python manage.py migrate
+
+# Create demo doctors
+python manage.py seed_demo_doctors
+
+# Start server
+python manage.py runserver
+\end{lstlisting}
+
+\subsection{B - Environment Variables}
+\begin{lstlisting}[caption=.env file]
+SECRET_KEY=django-secret-key-here
+DEBUG=True
+OPENAI_API_KEY=your-openai-api-key
+ANTHROPIC_API_KEY=your-anthropic-api-key  # Optional
+\end{lstlisting}
+
+\subsection{C - Database Schema}
+
+\textbf{Patient Model:}
+\begin{itemize}
+    \item user (ForeignKey)
+    \item full\_name (CharField)
+    \item age (PositiveIntegerField)
+    \item gender (CharField - choices)
+    \item weight\_kg (DecimalField)
+    \item height\_cm (DecimalField)
+    \item primary\_complaint (TextField)
+    \item allergies (TextField)
+\end{itemize}
+
+\textbf{Doctor Model:}
+\begin{itemize}
+    \item user (ForeignKey)
+    \item full\_name (CharField)
+    \item specialty (CharField)
+    \item email (EmailField)
+    \item work\_start\_time (TimeField)
+    \item work\_end\_time (TimeField)
+    \item slot\_duration\_minutes (IntegerField)
+    \item working\_days (JSONField)
+\end{itemize}
+
+\textbf{Appointment Model:}
+\begin{itemize}
+    \item patient (ForeignKey)
+    \item doctor (ForeignKey)
+    \item scheduled\_for (DateTimeField)
+    \item status (CharField - choices)
+    \item triage\_data (JSONField)
+    \item ai\_summary (TextField)
+    \item ai\_suggestions (JSONField)
+    \item risk\_level (CharField)
+\end{itemize}
+
+\textbf{Prescription Model:}
+\begin{itemize}
+    \item appointment (ForeignKey)
+    \item doctor (ForeignKey)
+    \item medication\_name (CharField)
+    \item dosage (CharField)
+    \item instructions (TextField)
+    \item ai\_interaction\_alerts (TextField)
+\end{itemize}
+
+\section{Conclusion}
+
+This project, the \textbf{AI-Powered Smart Hospital Management System} developed as part of the Medical Informatics course, successfully demonstrates the practical application of modern health informatics technologies.
+
+Features such as AI-assisted triage, clinical decision support, and drug interaction analysis significantly differentiate from traditional hospital information systems and offer innovative solutions that enhance patient safety and reduce physician workload.
+
+The project has been made into a scalable, secure, and user-friendly system by integrating the power of Django framework, OpenAI's AI capabilities, and modern web technologies.
+
+\vspace{1cm}
+
+\textit{Note: This system is for educational purposes and must undergo clinical validation, regulatory approvals, and comprehensive testing before use in real clinical settings.}
+
+\end{document}

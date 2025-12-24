@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Hasta Girişi{% endblock %}
+{% block title %}{% if language == 'en' %}Patient Login{% else %}Hasta Girişi{% endif %}{% endblock %}
 
 {% block content %}
 <div class="card auth-card">
-    <h2>Hasta Girişi</h2>
-    <p>Randevularınızı ve reçetelerinizi görmek için giriş yapın.</p>
+    <h2>{% if language == 'en' %}Patient Login{% else %}Hasta Girişi{% endif %}</h2>
+    <p>{% if language == 'en' %}Login to view your appointments and prescriptions.{% else %}Randevularınızı ve reçetelerinizi görmek için giriş yapın.{% endif %}</p>
     
     <div style="background: #1a2332; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981;">
-        <h4 style="margin: 0 0 10px 0; color: #10b981;">🧪 Test Kullanıcıları</h4>
+        <h4 style="margin: 0 0 10px 0; color: #10b981;">🧪 {% if language == 'en' %}Test Users{% else %}Test Kullanıcıları{% endif %}</h4>
         <div style="font-size: 0.9em; line-height: 1.6;">
-            <p style="margin: 5px 0;"><strong>Test Hasta 1:</strong> test_hasta / hasta123</p>
-            <p style="margin: 5px 0;"><strong>Test Hasta 2:</strong> aylin_hasta / hasta123</p>
-            <p style="margin: 10px 0 5px 0; color: #94a3b8; font-size: 0.95em;">💡 Veya "Kayıt olun" ile yeni hesap oluşturabilirsiniz.</p>
+            <p style="margin: 5px 0;"><strong>{% if language == 'en' %}Test Patient 1{% else %}Test Hasta 1{% endif %}:</strong> test_hasta / hasta123</p>
+            <p style="margin: 5px 0;"><strong>{% if language == 'en' %}Test Patient 2{% else %}Test Hasta 2{% endif %}:</strong> aylin_hasta / hasta123</p>
+            <p style="margin: 10px 0 5px 0; color: #94a3b8; font-size: 0.95em;">💡 {% if language == 'en' %}Or create a new account with "Sign Up".{% else %}Veya "Kayıt olun" ile yeni hesap oluşturabilirsiniz.{% endif %}</p>
         </div>
     </div>
 
     <form method="post">
         {% csrf_token %}
-        <label>Kullanıcı Adı <input type="text" name="username" required></label>
-        <label>Şifre <input type="password" name="password" required></label>
-        <button class="btn" type="submit">Giriş Yap</button>
+        <label>{% if language == 'en' %}Username{% else %}Kullanıcı Adı{% endif %} <input type="text" name="username" required></label>
+        <label>{% if language == 'en' %}Password{% else %}Şifre{% endif %} <input type="password" name="password" required></label>
+        <button class="btn" type="submit">{% if language == 'en' %}Login{% else %}Giriş Yap{% endif %}</button>
     </form>
-    <p>Hesabınız yok mu? <a href="{% url 'patient_signup' %}">Kayıt olun</a></p>
+    <p>{% if language == 'en' %}Don't have an account?{% else %}Hesabınız yok mu?{% endif %} <a href="{% url 'patient_signup' %}">{% if language == 'en' %}Sign Up{% else %}Kayıt olun{% endif %}</a></p>
 </div>
 {% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Reçete Düzenle{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Reçete Düzenle</h2>
+    <p><strong>Hasta:</strong> {{ prescription.appointment.patient.full_name }}</p>
+    <p><strong>Randevu:</strong> {{ prescription.appointment.scheduled_for|date:"d M Y H:i" }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>{{ field.label }}{% if field.field.required %}*{% endif %} {{ field }}
+                {% for error in field.errors %}<span class="error">{{ error }}</span>{% endfor %}
+            </label>
+        {% endfor %}
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn" type="submit">💾 Güncelle</button>
+            <a href="{% url 'appointment_detail' prescription.appointment.pk %}" class="btn" style="background: #95a5a6;">↩️ İptal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

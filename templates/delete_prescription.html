@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Reçete Sil{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Reçete Silme Onayı</h2>
+    <p style="margin: 20px 0;">Bu reçeteyi silmek istediğinizden emin misiniz?</p>
+    
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p><strong>İlaç:</strong> {{ prescription.medication_name }}</p>
+        <p><strong>Doz:</strong> {{ prescription.dosage }}</p>
+        <p><strong>Talimat:</strong> {{ prescription.instructions }}</p>
+        <p><strong>Hasta:</strong> {{ prescription.appointment.patient.full_name }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" type="submit" style="background: #e74c3c;">🗑️ Evet, Sil</button>
+            <a href="{% url 'appointment_detail' prescription.appointment.pk %}" class="btn" style="background: #95a5a6;">↩️ İptal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,61 +1,90 @@
 {% extends "base.html" %}
 
-{% block title %}Hasta Paneli{% endblock %}
+{% block title %}{% if language == 'en' %}Patient Panel{% else %}Hasta Paneli{% endif %}{% endblock %}
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2>Hasta Paneli</h2>
-    <div style="display: flex; gap: 10px;">
-        <a href="{% url 'patient_profile' %}" class="btn small">👤 Profilim</a>
-        <a href="{% url 'patient_intake' %}" class="btn small">📅 Yeni Randevu</a>
+    <h2>{% if language == 'en' %}Patient Panel{% else %}Hasta Paneli{% endif %}</h2>
+    <div>
+        <a href="{% url 'patient_intake' %}" class="btn small">📅 {% if language == 'en' %}New Appointment{% else %}Yeni Randevu{% endif %}</a>
     </div>
 </div>
-<p>Randevularınızı ve reçetelerinizi görüntüleyin.</p>
+<p>{% if language == 'en' %}View your appointments and prescriptions.{% else %}Randevularınızı ve reçetelerinizi görüntüleyin.{% endif %}</p>
 
 {% if patient %}
     <div class="card">
         <h3>{{ patient.full_name }}</h3>
-        <p>Yaş: {{ patient.age }} | Cinsiyet: {{ patient.get_gender_display }}</p>
-        <p>Şikayet: {{ patient.primary_complaint }}</p>
+        <p>
+            {% if language == 'en' %}Age{% else %}Yaş{% endif %}: {{ patient.age }} | 
+            {% if language == 'en' %}Gender{% else %}Cinsiyet{% endif %}: 
+            {% if language == 'en' %}
+                {% if patient.gender == 'male' %}Male{% elif patient.gender == 'female' %}Female{% else %}Other{% endif %}
+            {% else %}
+                {{ patient.get_gender_display }}
+            {% endif %}
+        </p>
+        <p>{% if language == 'en' %}Complaint{% else %}Şikayet{% endif %}: {{ patient.primary_complaint }}</p>
     </div>
 {% else %}
-    <p>Profil bulunamadı. <a href="{% url 'patient_intake' %}">Randevu alırken</a> profil oluşturabilirsiniz.</p>
+    <p>{% if language == 'en' %}Profile not found. You can create a profile when <a href="{% url 'patient_intake' %}">booking an appointment</a>.{% else %}Profil bulunamadı. <a href="{% url 'patient_intake' %}">Randevu alırken</a> profil oluşturabilirsiniz.{% endif %}</p>
 {% endif %}
 
 <div class="card">
-    <h3>Randevularım</h3>
+    <h3>{% if language == 'en' %}My Appointments and Prescriptions{% else %}Randevularım ve Reçetelerim{% endif %}</h3>
     <div class="list">
         {% for appt in appointments %}
             <div class="card">
                 <div class="card-header">
-                    <div><strong>{{ appt.doctor.full_name }}</strong> — {{ appt.doctor.specialty }}</div>
+                    <div><strong>{{ appt.doctor.full_name }}</strong> — 
+                        {% if language == 'en' %}
+                            {% if appt.doctor.specialty == 'Dahiliye' %}Internal Medicine
+                            {% elif appt.doctor.specialty == 'Kardiyoloji' %}Cardiology
+                            {% elif appt.doctor.specialty == 'Acil Tıp' %}Emergency Medicine
+                            {% elif appt.doctor.specialty == 'Pediatri' %}Pediatrics
+                            {% elif appt.doctor.specialty == 'Ortopedi' %}Orthopedics
+                            {% elif appt.doctor.specialty == 'Göz Hastalıkları' %}Ophthalmology
+                            {% else %}{{ appt.doctor.specialty }}{% endif %}
+                        {% else %}
+                            {{ appt.doctor.specialty }}
+                        {% endif %}
+                    </div>
                     <span>{{ appt.scheduled_for|date:"d M Y H:i" }}</span>
                 </div>
-                <p>Risk: {{ appt.risk_level }}</p>
-                <p>{{ appt.ai_summary|default:"Özet yok" }}</p>
+                <p><strong>{% if language == 'en' %}Risk{% else %}Risk{% endif %}:</strong> 
+                    {% if language == 'en' %}
+                        {% if appt.risk_level == 'Düşük' %}Low
+                        {% elif appt.risk_level == 'Orta' %}Medium
+                        {% elif appt.risk_level == 'Yüksek' %}High
+                        {% else %}{{ appt.risk_level }}{% endif %}
+                    {% else %}
+                        {{ appt.risk_level }}
+                    {% endif %}
+                </p>
+                <p><strong>{% if language == 'en' %}Triage Summary{% else %}Triyaj Özeti{% endif %}:</strong> {{ appt.ai_summary|default:"{% if language == 'en' %}No summary{% else %}Özet yok{% endif %}" }}</p>
+                
+                {% if appt.prescriptions.all %}
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(52, 152, 219, 0.1); border-radius: 5px;">
+                        <strong>📋 {% if language == 'en' %}Prescriptions for This Appointment{% else %}Bu Randevudaki Reçeteler{% endif %}:</strong>
+                        <div style="margin-top: 10px;">
+                            {% for rx in appt.prescriptions.all %}
+                                <div style="margin: 10px 0; padding: 10px; background: white; border-left: 3px solid #3498db; border-radius: 3px; color: #000;">
+                                    <div style="color: #000;"><strong>💊 {{ rx.medication_name }}</strong> — {{ rx.dosage }}</div>
+                                    <div style="margin: 5px 0; color: #333;"><em>{{ rx.instructions }}</em></div>
+                                    {% if rx.ai_interaction_alerts %}
+                                        <div style="margin-top: 5px; padding: 5px; background: #fff3cd; border-radius: 3px; color: #000;">
+                                            <strong>⚠️ {% if language == 'en' %}Warning{% else %}Uyarı{% endif %}:</strong> {{ rx.ai_interaction_alerts }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p style="margin-top: 10px; color: #7f8c8d;"><em>{% if language == 'en' %}No prescription written for this appointment yet.{% else %}Bu randevu için henüz reçete yazılmamış.{% endif %}</em></p>
+                {% endif %}
             </div>
         {% empty %}
-            <p>Randevu yok.</p>
-        {% endfor %}
-    </div>
-</div>
-
-<div class="card">
-    <h3>Reçetelerim</h3>
-    <div class="list">
-        {% for appt in prescriptions %}
-            {% for rx in appt.prescriptions.all %}
-                <div class="rx">
-                    <strong>{{ rx.medication_name }}</strong> — {{ rx.dosage }}<br>
-                    <small>{{ rx.instructions }}</small>
-                    <p class="alert">{{ rx.ai_interaction_alerts|default:"AI notu yok" }}</p>
-                    <small>{{ appt.scheduled_for|date:"d M Y H:i" }} | Dr. {{ appt.doctor.full_name }}</small>
-                </div>
-            {% empty %}
-                <p>Reçete yok.</p>
-            {% endfor %}
-        {% empty %}
-            <p>Reçete yok.</p>
+            <p>{% if language == 'en' %}No appointments{% else %}Randevu yok{% endif %}.</p>
         {% endfor %}
     </div>
 </div>
